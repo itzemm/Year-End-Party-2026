@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import QRCode from "qrcode";
 import TicketCard, { QR_OPTIONS } from "@/components/TicketCard";
 import { CHARACTERS } from "@/lib/characters";
-import { addGuest, exportData, importData, removeGuest, ticketUrl } from "@/lib/store";
+import { addGuest, exportData, importData, inviteMessage, removeGuest, resetCode, ticketUrl } from "@/lib/store";
 import { useStore } from "@/lib/useStore";
 import { PasscodeGate, StorageNotice } from "@/components/AdminGate";
 
@@ -18,6 +18,26 @@ export default function RegistrationPage() {
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  async function copyInvite(guest) {
+    try {
+      await navigator.clipboard.writeText(inviteMessage(guest));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt("Copy this invitation:", inviteMessage(guest));
+    }
+  }
+
+  async function handleResetCode(guest) {
+    if (!confirm(`Issue a new access code for ${guest.name}? Their old code will stop working and they’ll be logged out.`)) return;
+    try {
+      setLatest(await resetCode(guest.id));
+    } catch (err) {
+      setNote(`Couldn’t reset the code: ${err.message}`);
+    }
+  }
   const fileRef = useRef(null);
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -90,7 +110,10 @@ export default function RegistrationPage() {
           <h2 className="panel-title">
             <span aria-hidden="true">🎟️</span> Issue an Invitation
           </h2>
-          <p className="muted">Fill in what should appear on the ticket. Each guest gets a unique QR code and a lucky draw number.</p>
+          <p className="muted">
+              Fill in what should appear on the ticket. Each guest gets a unique QR code, a lucky draw number and an access code to see
+              their ticket on the My Ticket tab.
+            </p>
 
           <form className="form" onSubmit={handleSubmit}>
             <label>
@@ -142,6 +165,23 @@ export default function RegistrationPage() {
           {latest ? (
             <>
               <TicketCard guest={latest} url={ticketUrl(latest)} />
+              <div className="login-box">
+                <p className="login-box-title">Guest login</p>
+                <p>
+                  <span className="muted">{latest.email ? "Email" : "Ticket no."}</span> {latest.email || latest.ticketNo}
+                </p>
+                <p>
+                  <span className="muted">Access code</span> <strong className="code">{latest.accessCode}</strong>
+                </p>
+                <div className="actions">
+                  <button className="btn small primary" onClick={() => copyInvite(latest)}>
+                    {copied ? "Copied!" : "Copy invite message"}
+                  </button>
+                  <button className="btn small ghost" onClick={() => handleResetCode(latest)}>
+                    New code
+                  </button>
+                </div>
+              </div>
               <div className="actions">
                 <button className="btn" onClick={() => downloadQr(latest)}>
                   Download QR
@@ -193,6 +233,7 @@ export default function RegistrationPage() {
                   <th>Team</th>
                   <th>Table</th>
                   <th>Character</th>
+                  <th>Code</th>
                   <th />
                 </tr>
               </thead>
@@ -204,6 +245,7 @@ export default function RegistrationPage() {
                     <td>{g.team || "—"}</td>
                     <td>{g.table || "—"}</td>
                     <td>{g.character}</td>
+                    <td className="mono">{g.accessCode}</td>
                     <td className="row-actions">
                       <button className="link" onClick={() => setLatest(g)}>
                         View

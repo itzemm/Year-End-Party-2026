@@ -144,10 +144,18 @@ a {
 .tab:hover {
   background: rgba(226, 184, 87, 0.12);
 }
-@media (max-width: 480px) {
+@media (max-width: 560px) {
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    border-radius: 20px;
+  }
   .tab {
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: 0.95rem;
+    text-align: center;
+    border-radius: 14px;
   }
 }
 .tab.active {
@@ -856,6 +864,7 @@ select:focus {
   .site-header,
   .site-footer,
   .form,
+  .login-box,
   .actions,
   .panel-title,
   .muted,
@@ -904,4 +913,74 @@ select:focus {
 }
 .gate-form input {
   width: 220px;
+}
+
+/* Guest accounts */
+.login-panel {
+  max-width: 460px;
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+}
+.login-panel .form {
+  text-align: left;
+}
+.code-input,
+.code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  letter-spacing: 0.2em;
+}
+.code {
+  font-size: 1.25rem;
+  color: var(--gold-soft);
+}
+.small-print {
+  font-size: 0.9rem;
+}
+.welcome {
+  margin: 0;
+  text-align: center;
+  font-size: 1.2rem;
+}
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px dashed var(--gold);
+  background: rgba(20, 11, 40, 0.5);
+  text-align: center;
+}
+.login-box p {
+  margin: 4px 0;
+}
+.login-box .muted {
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+.login-box .actions {
+  margin-top: 10px;
+}
+.login-box-title {
+  font-family: var(--display);
+  color: var(--gold-soft);
+}
+.win-banner {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+  color: var(--ink);
+}
+.win-banner span {
+  font-size: 2.2rem;
+}
+.win-banner p {
+  margin: 2px 0 0;
 }
