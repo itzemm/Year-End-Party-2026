@@ -43,8 +43,9 @@ export function StorageNotice({ status, error }) {
   if (error) return <p className="banner error">{error}</p>;
   if (status?.storage === "memory") {
     return (
-      <p className="banner">
-        No database connected — data is kept in server memory and will reset. Connect Upstash Redis in Vercel to share and keep the guest list (see README).
+      <p className="banner error">
+        ⚠️ No database connected — registrations are only kept in temporary server memory and <b>will be lost</b>. In Vercel, connect
+        Upstash Redis to this project (Storage tab) and redeploy before registering anyone.
       </p>
     );
   }

@@ -20,9 +20,16 @@ export default function MyTicketPage() {
 
   useEffect(() => {
     load();
-    // Keep lucky draw results fresh while the guest has the page open.
-    const timer = setInterval(() => document.visibilityState === "visible" && fetchMe().then((d) => d && setMe(d)).catch(() => {}), 15000);
-    return () => clearInterval(timer);
+    // Check for lucky draw wins once a minute while the page is visible. Kept slow on
+    // purpose: 120 phones left open all evening should stay well within free tiers.
+    const timer = setInterval(() => document.visibilityState === "visible" && fetchMe().then((d) => d && setMe(d)).catch(() => {}), 60000);
+    // Also refresh straight away when the guest comes back to the tab.
+    const onVisible = () => document.visibilityState === "visible" && fetchMe().then((d) => d && setMe(d)).catch(() => {});
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [load]);
 
   if (me === undefined) return <p className="muted center">Falling down the rabbit hole…</p>;
