@@ -6,32 +6,45 @@ import TicketCard, { QR_OPTIONS } from "@/components/TicketCard";
 import { CHARACTERS } from "@/lib/characters";
 import { addGuest, exportData, importData, removeGuest, ticketUrl } from "@/lib/store";
 import { useStore } from "@/lib/useStore";
+import { PasscodeGate, StorageNotice } from "@/components/AdminGate";
 
 const EMPTY = { name: "", email: "", team: "", table: "", character: CHARACTERS[0].name, dietary: "", message: "" };
 
 export default function RegistrationPage() {
-  const { guests, ready } = useStore();
+  const { guests, ready, status, error, needsPasscode } = useStore();
   const [form, setForm] = useState(EMPTY);
   const [latest, setLatest] = useState(null);
   const [query, setQuery] = useState("");
   const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
   const fileRef = useRef(null);
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.name.trim()) return;
-    const guest = addGuest({
-      ...form,
-      name: form.name.trim(),
-      email: form.email.trim(),
-      team: form.team.trim(),
-      table: form.table.trim(),
-      message: form.message.trim(),
-    });
-    setLatest(guest);
-    setForm(EMPTY);
+    if (!form.name.trim() || saving) return;
+    setSaving(true);
+    setFormError("");
+    try {
+      setLatest(await addGuest(form));
+      setForm(EMPTY);
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleRemove(g) {
+    if (!confirm(`Off with ${g.name}’s ticket?`)) return;
+    try {
+      await removeGuest(g.id);
+      if (latest?.id === g.id) setLatest(null);
+    } catch (err) {
+      setNote(`Couldn’t remove ${g.name}: ${err.message}`);
+    }
   }
 
   async function downloadQr(guest) {
@@ -42,8 +55,8 @@ export default function RegistrationPage() {
     a.click();
   }
 
-  function handleExport() {
-    const blob = new Blob([exportData()], { type: "application/json" });
+  async function handleExport() {
+    const blob = new Blob([await exportData()], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `wonderland-guests-${new Date().toISOString().slice(0, 10)}.json`;
@@ -55,7 +68,7 @@ export default function RegistrationPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const count = importData(await file.text());
+      const count = await importData(await file.text());
       setNote(`Imported ${count} guests through the looking glass.`);
     } catch (err) {
       setNote(`Couldn’t read that file: ${err.message}`);
@@ -67,8 +80,11 @@ export default function RegistrationPage() {
     `${g.name} ${g.ticketNo} ${g.team} ${g.email}`.toLowerCase().includes(query.toLowerCase())
   );
 
+  if (needsPasscode) return <PasscodeGate />;
+
   return (
     <div className="stack">
+      <StorageNotice status={status} error={error} />
       <section className="grid-2">
         <div className="panel">
           <h2 className="panel-title">
@@ -115,8 +131,9 @@ export default function RegistrationPage() {
               Message on ticket
               <input value={form.message} onChange={update("message")} maxLength={80} placeholder="Why is a raven like a writing desk?" />
             </label>
-            <button className="btn primary" type="submit">
-              Generate ticket &amp; QR
+            {formError && <p className="note error-text">{formError}</p>}
+            <button className="btn primary" type="submit" disabled={saving}>
+              {saving ? "Brewing your ticket…" : <>Generate ticket &amp; QR</>}
             </button>
           </form>
         </div>
@@ -191,10 +208,7 @@ export default function RegistrationPage() {
                       <button className="link" onClick={() => setLatest(g)}>
                         View
                       </button>
-                      <button
-                        className="link danger"
-                        onClick={() => confirm(`Off with ${g.name}’s ticket?`) && removeGuest(g.id)}
-                      >
+                      <button className="link danger" onClick={() => handleRemove(g)}>
                         Remove
                       </button>
                     </td>

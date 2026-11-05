@@ -1,25 +1,22 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { addWinner, clearWinners } from "@/lib/store";
+import { clearWinners, drawWinner, notifyChange } from "@/lib/store";
 import { useStore } from "@/lib/useStore";
+import { PasscodeGate, StorageNotice } from "@/components/AdminGate";
 import { characterFor } from "@/lib/characters";
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function fairIndex(n) {
-  const buf = new Uint32Array(1);
-  crypto.getRandomValues(buf);
-  return buf[0] % n;
-}
-
 export default function LuckyDrawPage() {
-  const { guests, winners, ready } = useStore();
+  const { guests, winners, ready, status, error, needsPasscode } = useStore();
   const [prize, setPrize] = useState("");
   const [allowRepeat, setAllowRepeat] = useState(false);
   const [display, setDisplay] = useState(null);
   const [winner, setWinner] = useState(null);
   const [spinning, setSpinning] = useState(false);
+  const [drawError, setDrawError] = useState("");
+  const [pendingAt, setPendingAt] = useState(null);
   const stageRef = useRef(null);
 
   const wonTickets = new Set(winners.map((w) => w.ticketNo));
@@ -29,28 +26,33 @@ export default function LuckyDrawPage() {
     if (spinning || pool.length === 0) return;
     setSpinning(true);
     setWinner(null);
-    const chosen = pool[fairIndex(pool.length)];
+    setDrawError("");
+
+    // The server picks the winner (so every screen agrees), then we put on a show.
+    let result;
+    try {
+      result = await drawWinner(prize.trim(), allowRepeat);
+    } catch (err) {
+      setDrawError(err.message);
+      setSpinning(false);
+      return;
+    }
+    const { winner: record, pool: names } = result;
+    setPendingAt(record.drawnAt);
 
     // Roll through random tickets, slowing down like a stopping pocket watch.
     const steps = 32;
     for (let i = 0; i < steps; i++) {
-      setDisplay(pool[Math.floor(Math.random() * pool.length)]);
+      setDisplay(names[Math.floor(Math.random() * names.length)]);
       await wait(40 + Math.pow(i / steps, 3) * 380);
     }
-    setDisplay(chosen);
+    setDisplay(record);
     await wait(350);
 
-    const record = {
-      ticketNo: chosen.ticketNo,
-      name: chosen.name,
-      team: chosen.team,
-      character: chosen.character,
-      prize: prize.trim() || `Prize #${winners.length + 1}`,
-      drawnAt: new Date().toISOString(),
-    };
-    addWinner(record);
     setWinner(record);
+    setPendingAt(null);
     setSpinning(false);
+    notifyChange();
   }
 
   function toggleFullscreen() {
@@ -62,8 +64,14 @@ export default function LuckyDrawPage() {
 
   const shown = display ? characterFor(display.character) : null;
 
+  if (needsPasscode) return <PasscodeGate />;
+
+  // While the show is running, hide the newest winner from the roll so it isn't spoiled.
+  const roll = pendingAt ? winners.filter((w) => w.drawnAt !== pendingAt) : winners;
+
   return (
     <div className="stack">
+      <StorageNotice status={status} error={error} />
       <section className="panel draw-stage" ref={stageRef}>
         {winner && <Confetti key={winner.drawnAt} />}
         <div className="panel-head">
@@ -115,6 +123,7 @@ export default function LuckyDrawPage() {
               </>
             )}
           </p>
+          {drawError && <p className="note error-text">{drawError}</p>}
           <button className="btn primary big" onClick={draw} disabled={spinning || pool.length === 0}>
             {spinning ? "Shuffling the deck…" : "Draw a ticket!"}
           </button>
@@ -124,19 +133,19 @@ export default function LuckyDrawPage() {
       <section className="panel">
         <div className="panel-head">
           <h2 className="panel-title">
-            <span aria-hidden="true">🏆</span> Winners’ Roll <span className="count">{winners.length}</span>
+            <span aria-hidden="true">🏆</span> Winners’ Roll <span className="count">{roll.length}</span>
           </h2>
-          {winners.length > 0 && (
-            <button className="btn small ghost" onClick={() => confirm("Clear all winners?") && clearWinners()}>
+          {roll.length > 0 && !spinning && (
+            <button className="btn small ghost" onClick={() => confirm("Clear all winners for everyone?") && clearWinners().catch((e) => setDrawError(e.message))}>
               Clear
             </button>
           )}
         </div>
-        {winners.length === 0 ? (
+        {roll.length === 0 ? (
           <p className="muted">No winners yet. The Queen is growing impatient.</p>
         ) : (
           <ol className="winners">
-            {winners
+            {roll
               .slice()
               .reverse()
               .map((w) => (
