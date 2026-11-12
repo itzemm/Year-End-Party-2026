@@ -1,33 +1,17 @@
-import { NextResponse } from "next/server";
+import { route, readJson } from "@/lib/route";
 import { createGuest, listGuests } from "@/lib/db";
-import { checkAuth, errorResponse } from "@/lib/auth";
+import { httpError } from "@/lib/kv";
 
 export const dynamic = "force-dynamic";
 
-const FIELDS = { name: 80, email: 120, team: 80, table: 40, character: 40, dietary: 120, message: 80 };
+export const GET = route(async () => ({ guests: await listGuests() }), { admin: true });
 
-export async function GET(request) {
-  const denied = checkAuth(request);
-  if (denied) return denied;
-  try {
-    return NextResponse.json({ guests: await listGuests() });
-  } catch (err) {
-    return errorResponse(err);
-  }
-}
-
-export async function POST(request) {
-  const denied = checkAuth(request);
-  if (denied) return denied;
-  try {
-    const body = await request.json();
-    const details = {};
-    for (const [key, max] of Object.entries(FIELDS)) {
-      details[key] = String(body[key] ?? "").trim().slice(0, max);
-    }
-    if (!details.name) return NextResponse.json({ error: "Guest name is required" }, { status: 400 });
-    return NextResponse.json({ guest: await createGuest(details) }, { status: 201 });
-  } catch (err) {
-    return errorResponse(err);
-  }
-}
+// Registration only needs the guest's name.
+export const POST = route(
+  async (request) => {
+    const name = String((await readJson(request)).name ?? "").trim().replace(/\s+/g, " ").slice(0, 80);
+    if (!name) throw httpError("Guest name is required", 400);
+    return { guest: await createGuest({ name }) };
+  },
+  { admin: true }
+);

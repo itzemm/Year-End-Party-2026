@@ -9,7 +9,7 @@ export async function POST(request) {
     const identifier = String(body.identifier ?? "").trim().toLowerCase().slice(0, 120);
     const code = String(body.code ?? "").trim().slice(0, 20);
     if (!identifier || !code) {
-      return NextResponse.json({ error: "Enter your email (or ticket number) and access code" }, { status: 400 });
+      return NextResponse.json({ error: "Enter your name (or ticket number) and access code" }, { status: 400 });
     }
     if (await tooManyAttempts(identifier)) {
       return NextResponse.json({ error: "Too many tries — the door is locked for 15 minutes." }, { status: 429 });

@@ -1,110 +1,93 @@
 # Winter Wonderland — Year End Party 2026 ❄️⛄
 
-A Winter Wonderland themed party site with four tabs:
+A party site for ~120 guests: tickets with QR codes, two live phone games, and a lucky-draw wheel. Deploys to Vercel.
 
-| Tab | What it does |
-| --- | --- |
-| **Registration** (`/`) | Enter a guest's ticket details (name, team, table, character, message). Generates a ticket with a **unique QR code** and a **lucky draw number** (`WL26-0001`, `WL26-0002`, …). Download the QR as a PNG, open the ticket page, or print. Includes a searchable guest list with Export / Import. |
-| **My Ticket** (`/my-ticket`) | Guests log in with their **email or ticket number + access code** to see their ticket and QR, save the QR to their phone, and see if they won anything in the lucky draw. |
-| **Games** (`/games`) | **Guess the Item** (zoom-out picture game for the big screen) and **Smallest Unique Number** (everyone plays on their phone). See below. |
-| **Lucky Draw** (`/lucky-draw`) | Draws from the registered ticket numbers, with a rolling animation, confetti, a prize label, a winners' roll and a full-screen mode for the projector. Previous winners are excluded unless you tick the box. |
+## Who sees what
 
-Scanning a guest's QR code opens `/ticket?t=…`, which shows their ticket on any phone. The ticket details are carried in the QR link itself, so guests never need the organisers' passcode.
+| Page | Who | What it does |
+| --- | --- | --- |
+| **My Ticket** (`/my-ticket`, the home page) | Guests | Log in with **name (or ticket number) + access code**. Shows their ticket, QR code and any lucky-draw wins. |
+| **Games** (`/games`) | Guests | Play **Guess the Item** and **Smallest Unique Number** on their phone (must be logged in). |
+| **Lucky Draw** (`/lucky-draw`) | Guests | Shows the prize being drawn for and who won. |
+| **Admin** (`/admin`, the ❄ snow globe, top right) | Admins (password) | Registration, running both games on the big screen, prizes and the wheel. |
 
-## Games
+## Admin area
 
-### Guess the Item (host on the big screen)
+Click the snow globe in the top-right corner and enter the admin password (`ADMIN_PASSCODE`). The browser remembers it until you click **Log out**.
 
-The picture starts as an extreme close-up and zooms out one clue at a time (6 clues). Guests shout out guesses, and the earlier they get it, the more points it's worth.
+### Registration
+Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR code, a lucky-draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code and logs out the old one. Export/Import backs up the guest list.
 
-- Buttons or presenter keys: **Space** = zoom out, **Enter** = reveal answer, **→** = next picture. **Big screen** makes it full-screen.
-- Comes with 24 built-in winter pictures. Under **Manage pictures** you can add your own photos (the answer comes from the file name and can be edited) and turn the built-in set off.
-- Your own photos are saved in that laptop's browser, so add them on the laptop that runs the projector.
+### Guess the Item (5 rounds)
+1. Upload 5 pictures and type each answer. Add other accepted answers with commas (“mug, coffee cup”). Small typos, plurals and “a/the” are accepted automatically. Click a picture to choose where the close-up starts.
+2. Put the admin page on the projector (**Big screen**), ask guests to open Games → Guess the Item, then click **Start game**.
+3. Each round: the picture starts zoomed in and **zooms out every 10 seconds, 3 times**. After it's fully zoomed out, guests get **15 more seconds**. Then answers lock and the answer is revealed. Guests can change their answer until then. Their time counts from their last answer.
+4. Click **Show leaderboard →**, then **Next picture →** (or press → / N, or use a presenter clicker). After picture 5 it shows the **final leaderboard**.
 
-### Smallest Unique Number (everyone on their phones)
+**Ranking:** most correct answers, then the lowest total time on those correct answers. Phones only ever receive the zoom levels the timer has reached, so nobody can peek at the full picture early.
 
-Everyone picks a whole number, and the **smallest number nobody else picked** wins.
+### Smallest Unique Number
+1. Click **Start 2-minute round**. Guests pick a number from **1 to 100** on their phones and can change it until the timer ends. Then phones lock.
+2. Click **Start opening chests**. Chests are opened **50 → 1** (click the glowing chest, or press Space / →). Each one shows who picked that number. The banner always shows the **current smallest unique number**.
+3. If someone in 1–50 picked a number nobody else did, the smallest one wins. Otherwise click **Next page** and open **51 → 100**. Guests' phones follow along live.
 
-1. The host opens Games → Smallest Unique Number → **Host controls** (organiser passcode), sets the range (default 1–100) and clicks **Start round 1**. Put this on the big screen: it shows a QR code to join and a live count of entries.
-2. Guests scan the QR (or open Games on their phone), log in with their ticket details if they haven't already, and lock in a number. They can change it until the round closes. One entry per guest.
-3. The host clicks **Close round & reveal**. Everyone sees the winner and a chart of how many people picked each number. Each guest also sees how they did. Then click **Start next round**.
-
-Load-tested locally with 120 players entering at the same moment.
-
-## Guest accounts
-
-Every guest gets a 6-character **access code** when you register them (shown under their ticket and in the guest list's *Code* column).
-
-1. Register the guest, then click **Copy invite message**. It copies a ready-to-send message with the My Ticket link, their login (email, or ticket number if no email) and their code. Paste it into email, Slack, WhatsApp, etc.
-2. The guest opens `/my-ticket`, logs in, and stays logged in on that device for 60 days.
-3. Lost or leaked code? Click **View** on the guest, then **New code**. The old code stops working and any device logged in with it is logged out.
-
-Security notes: login is limited to 8 wrong tries per email/ticket number per 15 minutes, sessions are signed httpOnly cookies, and guests can only ever see their own ticket. Set `SESSION_SECRET` in Vercel to a long random string (otherwise one is derived from the database token).
-
-## Shared database
-
-The guest list, ticket numbers and lucky draw winners are stored in **Upstash Redis**, so every device (registration desk, phones, the lucky draw laptop) sees the same data. Ticket numbers are issued by an atomic counter, so two desks registering at once never get the same number. The lucky draw winner is picked on the server, so every screen agrees on who won.
-
-Without a database connected (e.g. plain `npm run dev`), the app still works but keeps data in server memory. It shows a banner and resets on restart.
+### Lucky Draw
+1. Add prizes with a name and photo.
+2. Click **Draw this** on a prize: every guest's Lucky Draw page now shows that prize.
+3. Click **Spin the wheel!** The wheel spins through every eligible guest and lands on the winner. Guests' phones reveal the winner when the wheel stops. Previous winners sit out unless you tick “Let previous winners win again”. Drawing a prize again (e.g. the winner wasn't there) replaces its winner.
 
 ## Deploy to Vercel
 
-1. Push this repo to GitHub, then in Vercel: **Add New → Project** and import it (Next.js is auto-detected).
-2. In the project, open **Storage → Create Database → Upstash → Redis** (free tier is plenty) and connect it to the project. This adds `KV_REST_API_URL` and `KV_REST_API_TOKEN` automatically.
-3. *(Recommended)* **Settings → Environment Variables**: add `ADMIN_PASSCODE` with a secret phrase. The Registration and Lucky Draw tabs then ask for it once per browser, so guests who scan their QR code can't see or change the guest list. Ticket pages and Games stay open to everyone.
-4. *(Recommended)* Add `SESSION_SECRET` with a long random string (e.g. the output of `openssl rand -hex 32`). It signs guest logins.
-5. **Redeploy** so the new variables take effect.
+1. In Vercel: **Add New → Project**, import this repo, **Deploy**.
+2. **Storage → Create Database → Upstash → Redis** (free plan) and connect it to the project. **Required**: without it nothing is saved.
+3. **Settings → Environment Variables**:
+   - `ADMIN_PASSCODE`: the admin password (**required**, otherwise anyone can open the admin area). Use something long.
+   - `SESSION_SECRET`: a long random string (e.g. `openssl rand -hex 32`). Signs guest logins.
+4. **Deployments → ⋯ → Redeploy** so the settings take effect.
 
 ## Run locally
 
 ```bash
 npm install
-cp .env.example .env.local   # optional: paste your Upstash credentials + passcode
+cp .env.example .env.local   # optional: Upstash credentials + passcode
 npm run dev                  # http://localhost:3000
 ```
 
-## Moving data around
+Without database credentials the app keeps data in memory (it resets on restart) and the admin page shows a warning.
 
-**Export** on the Registration tab downloads the guest list and winners as JSON. **Import** merges an exported file into the database, keeping existing ticket numbers. New tickets continue after the highest imported number. Use this to bring over guests registered with the earlier offline draft.
+**Rehearsal mode:** build with `NEXT_PUBLIC_GAME_SPEED=5` to run every game timer 5× faster (e.g. `NEXT_PUBLIC_GAME_SPEED=5 npm run build && npm start`). Never set this on the real deployment.
 
-## API
+## Load
 
-| Route | Method | Purpose |
-| --- | --- | --- |
-| `/api/status` | GET | storage mode and whether a passcode is needed |
-| `/api/guests` | GET / POST | list guests / register a guest |
-| `/api/guests/:id` | DELETE | remove a guest |
-| `/api/guests/import` | POST | merge an exported guest list |
-| `/api/guests/:id/reset-code` | POST | issue a new access code |
-| `/api/login` / `/api/logout` | POST | guest login (`{ identifier, code }`) / logout |
-| `/api/me` | GET | the logged-in guest's ticket and lucky draw wins |
-| `/api/sun` | GET | Smallest Unique Number: current round + entry count (public) |
-| `/api/sun/me` | GET | the logged-in guest's entry for the current round |
-| `/api/sun/entry` | POST | submit / change a number (`{ n }`, guest login required) |
-| `/api/sun/round` | POST | host: `{ action: "open", max }` or `{ action: "close" }` |
-| `/api/draw` | POST | pick a winner (`{ prize, allowRepeat }`) |
-| `/api/winners` | GET / DELETE | list / clear winners |
-
-Organiser routes require the `x-admin-passcode` header when `ADMIN_PASSCODE` is set. `/api/status`, `/api/login`, `/api/logout`, `/api/me` and the guest game routes (`/api/sun`, `/api/sun/me`, `/api/sun/entry`) never need it.
+Load-tested locally with 120 simultaneous players: logins, picture downloads at each zoom step, answers, number picks, live reveals and lucky-draw polling, with no failed requests. Phones poll the shared game state every 2–3 seconds. That state is cacheable for 1 second on Vercel's CDN, and pictures are cached by URL.
 
 ## Project layout
 
 ```
 app/
-  layout.js          header, tabs, background
-  page.js            Registration tab
-  games/page.js      Games tab
-  lucky-draw/page.js Lucky Draw tab
-  my-ticket/page.js  guest login + their own ticket
-  ticket/page.js     page opened by scanning a QR code
-  globals.css        Winter Wonderland theme
-components/          TicketCard, NavTabs, Snowfall, ZoomGuess, SmallestUnique, AdminGate
-lib/zoomItems.js     built-in pictures for Guess the Item
-public/zoom/         built-in pictures (Twemoji, CC-BY 4.0 — see CREDITS.txt)
-app/api/             API routes (guests, draw, winners, status)
-lib/db.js            server-side storage (Upstash Redis or in-memory fallback)
-lib/auth.js          optional admin passcode check
-lib/session.js       guest login sessions (signed cookie)
-lib/store.js         client-side API calls + QR payload encoding
-lib/useStore.js      React hook that loads and polls the shared data
+  my-ticket/  games/  lucky-draw/  ticket/   guest pages
+  admin/                                     admin area (behind the snow globe)
+  api/                                       API routes (see below)
+components/
+  admin/      AdminApp, RegistrationAdmin, ZoomAdmin, SunAdmin, LuckyAdmin, PrizeWheel, JoinQr
+  games/      ZoomPlayer, ZoomStage, Leaderboard, SunPlayer, ChestGrid, LoginPrompt
+lib/
+  kv.js         storage (Upstash Redis, or in-memory for local dev)
+  db.js         guests, logins, prizes, lucky draw
+  zoomGame.js   Guess the Item server logic
+  sunGame.js    Smallest Unique Number server logic
+  rules.js      shared timings, answer matching and scoring
+  imageTools.js resizing and zoom-level cropping (in the admin's browser)
+  hooks.js      server clock, polling
 ```
+
+### API
+
+| Route | Who | Purpose |
+| --- | --- | --- |
+| `/api/login`, `/api/logout`, `/api/me` | guests | log in with name/ticket + code; own ticket and wins |
+| `/api/zoom` · `/api/zoom/me` · `/api/zoom/answer` · `/api/zoom/image` | guests | Guess the Item state, own result, answer, pictures (time-gated) |
+| `/api/sun` · `/api/sun/me` · `/api/sun/entry` | guests | Smallest Unique Number state, own pick, pick a number |
+| `/api/lucky` (GET) | guests | current prize and revealed winner |
+| `/api/time` | anyone | server clock for countdowns |
+| `/api/guests…`, `/api/zoom/admin`, `/api/sun/admin`, `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |

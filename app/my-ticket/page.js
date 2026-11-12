@@ -114,14 +114,14 @@ function LoginForm({ onLoggedIn, initialError }) {
     <section className="panel login-panel">
       <p className="big-emoji" aria-hidden="true">🗝️</p>
       <h2 className="panel-title">Find your ticket</h2>
-      <p className="muted">Log in with the email (or ticket number) and access code from your invitation.</p>
+      <p className="muted">Log in with your name (or ticket number) and the access code from your invitation.</p>
       <form className="form" onSubmit={submit}>
         <label>
-          Email or ticket number
+          Your name or ticket number
           <input
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            placeholder="holly@company.com"
+            placeholder="Holly Winters"
             autoComplete="username"
             autoCapitalize="none"
             required

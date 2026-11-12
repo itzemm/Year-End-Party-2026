@@ -1,26 +1,12 @@
-import { NextResponse } from "next/server";
+import { route } from "@/lib/route";
 import { clearWinners, listWinners } from "@/lib/db";
-import { checkAuth, errorResponse } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
-
-export async function GET(request) {
-  const denied = checkAuth(request);
-  if (denied) return denied;
-  try {
-    return NextResponse.json({ winners: await listWinners() });
-  } catch (err) {
-    return errorResponse(err);
-  }
-}
-
-export async function DELETE(request) {
-  const denied = checkAuth(request);
-  if (denied) return denied;
-  try {
+export const GET = route(async () => ({ winners: await listWinners() }), { admin: true });
+export const DELETE = route(
+  async () => {
     await clearWinners();
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    return errorResponse(err);
-  }
-}
+    return { ok: true };
+  },
+  { admin: true }
+);

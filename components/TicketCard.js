@@ -56,10 +56,14 @@ export default function TicketCard({ guest, url, compact = false }) {
               <dd>{guest.table}</dd>
             </>
           )}
-          <dt>Arriving as</dt>
-          <dd>
-            {char.emoji} {char.name}
-          </dd>
+          {guest.character && (
+            <>
+              <dt>Arriving as</dt>
+              <dd>
+                {char.emoji} {char.name}
+              </dd>
+            </>
+          )}
         </dl>
       </div>
 
