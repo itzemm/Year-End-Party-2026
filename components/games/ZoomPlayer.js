@@ -25,6 +25,14 @@ export default function ZoomPlayer() {
 
   if (game === undefined) return <p className="muted center">Shaking the snow globe…</p>;
   if (me && !me.loggedIn) return <LoginPrompt next="/games?game=zoom" />;
+  if (game.status === "stopped") {
+    return (
+      <div className="panel-inner empty">
+        <p className="big-emoji" aria-hidden="true">⏹️</p>
+        <p>The host stopped the game. Thanks for playing!</p>
+      </div>
+    );
+  }
   if (game.status === "idle") {
     return (
       <div className="panel-inner empty">
@@ -39,11 +47,13 @@ export default function ZoomPlayer() {
 
   if (game.status === "leaderboard" || game.status === "final") {
     const final = game.status === "final";
+    const played = game.stoppedEarly ? game.round + 1 : game.rounds;
     return (
       <div className="panel-inner">
         <h3 className="sun-heading">{final ? "🏆 Final leaderboard" : `Leaderboard after picture ${game.round + 1}`}</h3>
-        <Leaderboard rows={game.leaderboard} rounds={game.rounds} final={final} meTicket={me?.standing?.ticketNo} />
-        <MyStanding standing={me?.standing} rounds={game.rounds} players={game.players} />
+        {game.stoppedEarly && <p className="muted center small-print">The host ended the game after picture {game.round + 1}.</p>}
+        <Leaderboard rows={game.leaderboard} rounds={played} final={final} meTicket={me?.standing?.ticketNo} />
+        <MyStanding standing={me?.standing} rounds={played} players={game.players} />
         {!final && <p className="muted small-print center">The next picture is coming up…</p>}
       </div>
     );

@@ -37,6 +37,11 @@ export default function ZoomAdmin() {
 
   async function control(action) {
     if (action === "reset" && !confirm("Reset Guess the Item? The current game and its leaderboard will be cleared.")) return;
+    if (
+      action === "stop" &&
+      !confirm("Stop the game now? Everyone sees the final leaderboard for the pictures already revealed. The picture in progress won’t count.")
+    )
+      return;
     setError("");
     try {
       const res = await zoomAdmin(action);
@@ -122,6 +127,11 @@ function HostPanel({ game, items, onControl, error }) {
           <button className="btn small ghost" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen?.())}>
             ⛶ Big screen
           </button>
+          {(status === "playing" || status === "leaderboard") && (
+            <button className="btn small danger-btn" onClick={() => onControl("stop")}>
+              ■ Stop game
+            </button>
+          )}
           {status !== "idle" && (
             <button className="btn small ghost" onClick={() => onControl("reset")}>
               Reset game
@@ -130,10 +140,11 @@ function HostPanel({ game, items, onControl, error }) {
         </div>
       </div>
 
-      {status === "idle" && (
+      {(status === "idle" || status === "stopped") && (
         <div className="host-idle">
           <JoinQr path="/games?game=zoom" label="Scan to play Guess the Item" />
           <div>
+            {status === "stopped" && <p className="note">The game was stopped before any picture finished.</p>}
             <p>
               {ready
                 ? "All 5 pictures are ready. Ask everyone to open Games → Guess the Item on their phones, then start."
@@ -174,8 +185,12 @@ function HostPanel({ game, items, onControl, error }) {
 
       {(status === "leaderboard" || status === "final") && (
         <div className="host-play">
-          <h3 className="sun-heading center-text">{status === "final" ? "🏆 Final leaderboard" : `Leaderboard after picture ${game.round + 1} of ${game.rounds}`}</h3>
-          <Leaderboard rows={game.leaderboard} rounds={game.rounds} final={status === "final"} big />
+          <h3 className="sun-heading center-text">
+            {status === "final"
+              ? `🏆 Final leaderboard${game.stoppedEarly ? ` (stopped after picture ${game.round + 1})` : ""}`
+              : `Leaderboard after picture ${game.round + 1} of ${game.rounds}`}
+          </h3>
+          <Leaderboard rows={game.leaderboard} rounds={game.stoppedEarly ? game.round + 1 : game.rounds} final={status === "final"} big />
           <div className="actions">
             {status === "leaderboard" ? (
               <button className="btn primary big" onClick={() => onControl("next")}>

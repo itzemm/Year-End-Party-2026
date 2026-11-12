@@ -1572,3 +1572,10 @@ button.chest:disabled {
 .chest.open:not(.unique):not(.dupe) {
   opacity: 0.45;
 }
+.btn.danger-btn {
+  border-color: #ff9aac;
+  color: #ffc2cc;
+}
+.btn.danger-btn:hover:not(:disabled) {
+  background: rgba(255, 154, 172, 0.15);
+}

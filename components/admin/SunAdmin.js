@@ -23,6 +23,7 @@ export default function SunAdmin() {
 
   async function act(action, extra) {
     if (action === "start" && (phase === "open" || phase === "revealing") && !confirm("Start a new round? The current one will be abandoned.")) return;
+    if (action === "stop" && !confirm("Stop this round? Picks are locked and no winner is declared.")) return;
     setBusy(true);
     setError("");
     try {
@@ -66,7 +67,12 @@ export default function SunAdmin() {
           <button className="btn small ghost" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen?.())}>
             ⛶ Big screen
           </button>
-          {round && phase !== "open" && (
+          {round && phase !== "stopped" && (
+            <button className="btn small danger-btn" onClick={() => act("stop")} disabled={busy}>
+              ■ Stop round
+            </button>
+          )}
+          {round && phase !== "open" && phase !== "stopped" && (
             <button className="btn small ghost" onClick={() => act("start")} disabled={busy}>
               New round
             </button>
@@ -74,12 +80,13 @@ export default function SunAdmin() {
         </div>
       </div>
 
-      {(!round || phase === "open" || phase === "locked") && (
+      {(!round || phase === "open" || phase === "locked" || phase === "stopped") && (
         <div className="host-idle">
           <JoinQr path="/games?game=sun" label="Scan to play" />
           <div className="host-status">
-            {!round && (
+            {(!round || phase === "stopped") && (
               <>
+                {phase === "stopped" && <p className="note">Round {round.id} was stopped.</p>}
                 <p>Everyone gets 2 minutes to pick a number from 1 to {SUN_MAX}. The smallest number nobody else picked wins.</p>
                 <button className="btn primary big" onClick={() => act("start")} disabled={busy}>
                   Start 2-minute round

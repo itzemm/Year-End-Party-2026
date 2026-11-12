@@ -24,12 +24,15 @@ Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR co
 3. Each round: the picture starts zoomed in and **zooms out every 10 seconds, 3 times**. After it's fully zoomed out, guests get **15 more seconds**. Then answers lock and the answer is revealed. Guests can change their answer until then. Their time counts from their last answer.
 4. Click **Show leaderboard →**, then **Next picture →** (or press → / N, or use a presenter clicker). After picture 5 it shows the **final leaderboard**.
 
+**■ Stop game** ends it straight away: everyone sees the final leaderboard for the pictures already revealed (the picture in progress doesn't count and its answer stays hidden). **Reset game** clears everything back to the start.
+
 **Ranking:** most correct answers, then the lowest total time on those correct answers. Phones only ever receive the zoom levels the timer has reached, so nobody can peek at the full picture early.
 
 ### Smallest Unique Number
 1. Click **Start 2-minute round**. Guests pick a number from **1 to 100** on their phones and can change it until the timer ends. Then phones lock.
 2. Click **Start opening chests**. Chests are opened **50 → 1** (click the glowing chest, or press Space / →). Each one shows who picked that number. The banner always shows the **current smallest unique number**.
-3. If someone in 1–50 picked a number nobody else did, the smallest one wins. Otherwise click **Next page** and open **51 → 100**. Guests' phones follow along live.
+3. **■ Stop round** cancels the round at any point (while the timer runs or during the reveal). Picks lock and no winner is declared. Start a new round when ready.
+4. If someone in 1–50 picked a number nobody else did, the smallest one wins. Otherwise click **Next page** and open **51 → 100**. Guests' phones follow along live.
 
 ### Lucky Draw
 1. Add prizes with a name and photo.

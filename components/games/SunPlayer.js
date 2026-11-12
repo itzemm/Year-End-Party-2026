@@ -37,6 +37,15 @@ export default function SunPlayer() {
   }
   const myEntry = me?.roundId === round.id ? me.entry : null;
 
+  if (phase === "stopped") {
+    return (
+      <div className="panel-inner empty">
+        <p className="big-emoji" aria-hidden="true">⏹️</p>
+        <p>The host stopped this round. Stay on this page for the next one!</p>
+      </div>
+    );
+  }
+
   if (phase === "open") {
     return (
       <div className="panel-inner">
