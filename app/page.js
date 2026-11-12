@@ -58,7 +58,7 @@ export default function RegistrationPage() {
   }
 
   async function handleRemove(g) {
-    if (!confirm(`Off with ${g.name}’s ticket?`)) return;
+    if (!confirm(`Remove ${g.name}’s ticket?`)) return;
     try {
       await removeGuest(g.id);
       if (latest?.id === g.id) setLatest(null);
@@ -79,7 +79,7 @@ export default function RegistrationPage() {
     const blob = new Blob([await exportData()], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `wonderland-guests-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `winter-wonderland-guests-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   }
@@ -89,7 +89,7 @@ export default function RegistrationPage() {
     if (!file) return;
     try {
       const count = await importData(await file.text());
-      setNote(`Imported ${count} guests through the looking glass.`);
+      setNote(`Imported ${count} guests into the snow globe.`);
     } catch (err) {
       setNote(`Couldn’t read that file: ${err.message}`);
     }
@@ -118,22 +118,22 @@ export default function RegistrationPage() {
           <form className="form" onSubmit={handleSubmit}>
             <label>
               Guest name *
-              <input required value={form.name} onChange={update("name")} placeholder="Alice Liddell" />
+              <input required value={form.name} onChange={update("name")} placeholder="Holly Winters" />
             </label>
             <div className="row">
               <label>
                 Email
-                <input type="email" value={form.email} onChange={update("email")} placeholder="alice@wonderland.co" />
+                <input type="email" value={form.email} onChange={update("email")} placeholder="holly@company.com" />
               </label>
               <label>
                 Team / Department
-                <input value={form.team} onChange={update("team")} placeholder="Tea Party Planning" />
+                <input value={form.team} onChange={update("team")} placeholder="Finance" />
               </label>
             </div>
             <div className="row">
               <label>
                 Table
-                <input value={form.table} onChange={update("table")} placeholder="Hearts 7" />
+                <input value={form.table} onChange={update("table")} placeholder="Snowflake 7" />
               </label>
               <label>
                 Arriving as
@@ -148,15 +148,15 @@ export default function RegistrationPage() {
             </div>
             <label>
               Dietary needs
-              <input value={form.dietary} onChange={update("dietary")} placeholder="Eat Me cakes only, please" />
+              <input value={form.dietary} onChange={update("dietary")} placeholder="Vegetarian, no nuts…" />
             </label>
             <label>
               Message on ticket
-              <input value={form.message} onChange={update("message")} maxLength={80} placeholder="Why is a raven like a writing desk?" />
+              <input value={form.message} onChange={update("message")} maxLength={80} placeholder="Warm wishes for the new year!" />
             </label>
             {formError && <p className="note error-text">{formError}</p>}
             <button className="btn primary" type="submit" disabled={saving}>
-              {saving ? "Brewing your ticket…" : <>Generate ticket &amp; QR</>}
+              {saving ? "Frosting your ticket…" : <>Generate ticket &amp; QR</>}
             </button>
           </form>
         </div>
@@ -196,7 +196,7 @@ export default function RegistrationPage() {
             </>
           ) : (
             <div className="empty">
-              <p className="big-emoji" aria-hidden="true">🐇</p>
+              <p className="big-emoji" aria-hidden="true">⛄</p>
               <p>“I’m late, I’m late!” — the next ticket will appear here.</p>
             </div>
           )}
@@ -222,7 +222,7 @@ export default function RegistrationPage() {
         {note && <p className="note">{note}</p>}
 
         {!ready ? null : guests.length === 0 ? (
-          <p className="muted">No guests yet. The tea is getting cold.</p>
+          <p className="muted">No guests yet. The dance floor is empty.</p>
         ) : (
           <div className="table-wrap">
             <table className="guest-table">

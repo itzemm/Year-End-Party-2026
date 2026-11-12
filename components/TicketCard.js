@@ -8,7 +8,7 @@ export const QR_OPTIONS = {
   margin: 1,
   width: 360,
   errorCorrectionLevel: "L",
-  color: { dark: "#1b1033", light: "#fffaf0" },
+  color: { dark: "#0b1d3a", light: "#f7fbff" },
 };
 
 export default function TicketCard({ guest, url, compact = false }) {
@@ -23,22 +23,22 @@ export default function TicketCard({ guest, url, compact = false }) {
   return (
     <article className={`ticket ${compact ? "compact" : ""}`}>
       <div className="corner tl">
-        <b>{char.suit}</b>
-        <small>{char.suit}</small>
+        <b>{char.mark}</b>
+        <small>{char.mark}</small>
       </div>
       <div className="corner br">
-        <b>{char.suit}</b>
-        <small>{char.suit}</small>
+        <b>{char.mark}</b>
+        <small>{char.mark}</small>
       </div>
 
       <p className="ticket-eyebrow">You are cordially invited to</p>
-      <h3 className="ticket-title">The Mad Tea Party</h3>
+      <h3 className="ticket-title">The Winter Ball</h3>
       <p className="ticket-sub">Year End Party 2026</p>
 
       <div className="ticket-body">
         {url && (
           <div className="qr-frame">
-            {qr ? <img src={qr} alt={`QR code for ticket ${guest.ticketNo}`} /> : <div className="qr-loading">Brewing…</div>}
+            {qr ? <img src={qr} alt={`QR code for ticket ${guest.ticketNo}`} /> : <div className="qr-loading">Frosting…</div>}
           </div>
         )}
         <dl className="ticket-details">

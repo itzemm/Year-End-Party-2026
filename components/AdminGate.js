@@ -31,7 +31,7 @@ export function PasscodeGate() {
       <form className="gate-form" onSubmit={submit}>
         <input type="password" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Passcode" autoFocus />
         <button className="btn primary" type="submit" disabled={checking}>
-          Drink me
+          Unlock
         </button>
       </form>
       {message && <p className="note error-text">{message}</p>}

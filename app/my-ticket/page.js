@@ -32,7 +32,7 @@ export default function MyTicketPage() {
     };
   }, [load]);
 
-  if (me === undefined) return <p className="muted center">Falling down the rabbit hole…</p>;
+  if (me === undefined) return <p className="muted center">Shaking the snow globe…</p>;
   if (!me) return <LoginForm onLoggedIn={load} initialError={error} />;
 
   const { guest, wins } = me;
@@ -48,14 +48,14 @@ export default function MyTicketPage() {
   return (
     <div className="ticket-page">
       <p className="welcome">
-        Welcome back, <b>{guest.name}</b>. Here is your invitation to the tea party.
+        Welcome back, <b>{guest.name}</b>. Here is your invitation to the Winter Ball.
       </p>
 
       {wins.length > 0 && (
         <div className="win-banner">
           <span aria-hidden="true">🏆</span>
           <div>
-            <b>The Queen smiles upon you!</b>
+            <b>Snowflakes smile upon you!</b>
             {wins.map((w) => (
               <p key={w.drawnAt}>You won {w.prize} in the lucky draw.</p>
             ))}
@@ -96,6 +96,12 @@ function LoginForm({ onLoggedIn, initialError }) {
     setError("");
     try {
       await login(identifier, code);
+      // Came here from a game? Go straight back to it.
+      const next = new URLSearchParams(window.location.search).get("next");
+      if (next && next.startsWith("/") && !next.startsWith("//")) {
+        window.location.href = next;
+        return;
+      }
       await onLoggedIn();
     } catch (err) {
       setError(err.message);
@@ -115,7 +121,7 @@ function LoginForm({ onLoggedIn, initialError }) {
           <input
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
-            placeholder="alice@wonderland.co"
+            placeholder="holly@company.com"
             autoComplete="username"
             autoCapitalize="none"
             required

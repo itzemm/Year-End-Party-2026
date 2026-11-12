@@ -1,15 +1,35 @@
-# Down the Rabbit Hole — Year End Party 2026 🎩🐇
+# Winter Wonderland — Year End Party 2026 ❄️⛄
 
-An Alice in Wonderland themed party site with four tabs:
+A Winter Wonderland themed party site with four tabs:
 
 | Tab | What it does |
 | --- | --- |
 | **Registration** (`/`) | Enter a guest's ticket details (name, team, table, character, message). Generates a ticket with a **unique QR code** and a **lucky draw number** (`WL26-0001`, `WL26-0002`, …). Download the QR as a PNG, open the ticket page, or print. Includes a searchable guest list with Export / Import. |
 | **My Ticket** (`/my-ticket`) | Guests log in with their **email or ticket number + access code** to see their ticket and QR, save the QR to their phone, and see if they won anything in the lucky draw. |
-| **Games** (`/games`) | *Teacup Shuffle* (find the Dormouse under the cups — gets faster with every win) and *Hatter's Riddles* (Wonderland trivia). |
+| **Games** (`/games`) | **Guess the Item** (zoom-out picture game for the big screen) and **Smallest Unique Number** (everyone plays on their phone). See below. |
 | **Lucky Draw** (`/lucky-draw`) | Draws from the registered ticket numbers, with a rolling animation, confetti, a prize label, a winners' roll and a full-screen mode for the projector. Previous winners are excluded unless you tick the box. |
 
 Scanning a guest's QR code opens `/ticket?t=…`, which shows their ticket on any phone. The ticket details are carried in the QR link itself, so guests never need the organisers' passcode.
+
+## Games
+
+### Guess the Item (host on the big screen)
+
+The picture starts as an extreme close-up and zooms out one clue at a time (6 clues). Guests shout out guesses, and the earlier they get it, the more points it's worth.
+
+- Buttons or presenter keys: **Space** = zoom out, **Enter** = reveal answer, **→** = next picture. **Big screen** makes it full-screen.
+- Comes with 24 built-in winter pictures. Under **Manage pictures** you can add your own photos (the answer comes from the file name and can be edited) and turn the built-in set off.
+- Your own photos are saved in that laptop's browser, so add them on the laptop that runs the projector.
+
+### Smallest Unique Number (everyone on their phones)
+
+Everyone picks a whole number, and the **smallest number nobody else picked** wins.
+
+1. The host opens Games → Smallest Unique Number → **Host controls** (organiser passcode), sets the range (default 1–100) and clicks **Start round 1**. Put this on the big screen: it shows a QR code to join and a live count of entries.
+2. Guests scan the QR (or open Games on their phone), log in with their ticket details if they haven't already, and lock in a number. They can change it until the round closes. One entry per guest.
+3. The host clicks **Close round & reveal**. Everyone sees the winner and a chart of how many people picked each number. Each guest also sees how they did. Then click **Start next round**.
+
+Load-tested locally with 120 players entering at the same moment.
 
 ## Guest accounts
 
@@ -58,10 +78,14 @@ npm run dev                  # http://localhost:3000
 | `/api/guests/:id/reset-code` | POST | issue a new access code |
 | `/api/login` / `/api/logout` | POST | guest login (`{ identifier, code }`) / logout |
 | `/api/me` | GET | the logged-in guest's ticket and lucky draw wins |
+| `/api/sun` | GET | Smallest Unique Number: current round + entry count (public) |
+| `/api/sun/me` | GET | the logged-in guest's entry for the current round |
+| `/api/sun/entry` | POST | submit / change a number (`{ n }`, guest login required) |
+| `/api/sun/round` | POST | host: `{ action: "open", max }` or `{ action: "close" }` |
 | `/api/draw` | POST | pick a winner (`{ prize, allowRepeat }`) |
 | `/api/winners` | GET / DELETE | list / clear winners |
 
-Organiser routes require the `x-admin-passcode` header when `ADMIN_PASSCODE` is set. `/api/status`, `/api/login`, `/api/logout` and `/api/me` are for guests and never need it.
+Organiser routes require the `x-admin-passcode` header when `ADMIN_PASSCODE` is set. `/api/status`, `/api/login`, `/api/logout`, `/api/me` and the guest game routes (`/api/sun`, `/api/sun/me`, `/api/sun/entry`) never need it.
 
 ## Project layout
 
@@ -73,8 +97,10 @@ app/
   lucky-draw/page.js Lucky Draw tab
   my-ticket/page.js  guest login + their own ticket
   ticket/page.js     page opened by scanning a QR code
-  globals.css        Wonderland theme
-components/          TicketCard, NavTabs, TeacupShuffle, RiddleQuiz
+  globals.css        Winter Wonderland theme
+components/          TicketCard, NavTabs, Snowfall, ZoomGuess, SmallestUnique, AdminGate
+lib/zoomItems.js     built-in pictures for Guess the Item
+public/zoom/         built-in pictures (Twemoji, CC-BY 4.0 — see CREDITS.txt)
 app/api/             API routes (guests, draw, winners, status)
 lib/db.js            server-side storage (Upstash Redis or in-memory fallback)
 lib/auth.js          optional admin passcode check

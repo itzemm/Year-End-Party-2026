@@ -40,7 +40,7 @@ export default function LuckyDrawPage() {
     const { winner: record, pool: names } = result;
     setPendingAt(record.drawnAt);
 
-    // Roll through random tickets, slowing down like a stopping pocket watch.
+    // Roll through random tickets, slowing down like a sled coming to a stop.
     const steps = 32;
     for (let i = 0; i < steps; i++) {
       setDisplay(names[Math.floor(Math.random() * names.length)]);
@@ -76,7 +76,7 @@ export default function LuckyDrawPage() {
         {winner && <Confetti key={winner.drawnAt} />}
         <div className="panel-head">
           <h2 className="panel-title">
-            <span aria-hidden="true">🎩</span> The Queen’s Lucky Draw
+            <span aria-hidden="true">🎁</span> The Snowflake Lucky Draw
           </h2>
           <button className="btn small ghost" onClick={toggleFullscreen}>
             ⛶ Big screen
@@ -86,7 +86,7 @@ export default function LuckyDrawPage() {
         <div className="draw-controls">
           <label>
             Prize
-            <input value={prize} onChange={(e) => setPrize(e.target.value)} placeholder="e.g. A golden pocket watch" disabled={spinning} />
+            <input value={prize} onChange={(e) => setPrize(e.target.value)} placeholder="e.g. A cosy weekend getaway" disabled={spinning} />
           </label>
           <label className="check">
             <input type="checkbox" checked={allowRepeat} onChange={(e) => setAllowRepeat(e.target.checked)} disabled={spinning} />
@@ -97,7 +97,7 @@ export default function LuckyDrawPage() {
         <div className={`draw-window ${spinning ? "spinning" : ""} ${winner ? "won" : ""}`}>
           {display ? (
             <>
-              <p className="draw-suit" aria-hidden="true">{shown.suit}</p>
+              <p className="draw-suit" aria-hidden="true">{shown.emoji}</p>
               <p className="draw-number">{display.ticketNo}</p>
               <p className="draw-name">{spinning ? "…" : display.name}</p>
               {winner && (
@@ -108,8 +108,8 @@ export default function LuckyDrawPage() {
             </>
           ) : (
             <>
-              <p className="draw-suit" aria-hidden="true">🕰️</p>
-              <p className="draw-name">“Who will it be?” said the Cheshire Cat.</p>
+              <p className="draw-suit" aria-hidden="true">❄️</p>
+              <p className="draw-name">Who will the snowflake land on?</p>
             </>
           )}
         </div>
@@ -118,14 +118,14 @@ export default function LuckyDrawPage() {
           <p className="muted">
             {ready && (
               <>
-                {pool.length} ticket{pool.length === 1 ? "" : "s"} in the hat
+                {pool.length} ticket{pool.length === 1 ? "" : "s"} in the snow globe
                 {guests.length === 0 && " — register guests first (or import a guest list)."}
               </>
             )}
           </p>
           {drawError && <p className="note error-text">{drawError}</p>}
           <button className="btn primary big" onClick={draw} disabled={spinning || pool.length === 0}>
-            {spinning ? "Shuffling the deck…" : "Draw a ticket!"}
+            {spinning ? "Swirling the snow…" : "Draw a ticket!"}
           </button>
         </div>
       </section>
@@ -142,7 +142,7 @@ export default function LuckyDrawPage() {
           )}
         </div>
         {roll.length === 0 ? (
-          <p className="muted">No winners yet. The Queen is growing impatient.</p>
+          <p className="muted">No winners yet. The snow is still settling.</p>
         ) : (
           <ol className="winners">
             {roll
@@ -167,7 +167,7 @@ function Confetti() {
     left: Math.random() * 100,
     delay: Math.random() * 0.8,
     duration: 2.2 + Math.random() * 1.6,
-    char: ["♠", "♥", "♣", "♦", "🌹", "🃏"][i % 6],
+    char: ["❄", "❅", "❆", "✦", "🎁", "⭐"][i % 6],
     rot: Math.random() * 360,
   }));
   return (

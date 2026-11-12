@@ -13,8 +13,8 @@ function TicketView() {
   if (!guest) {
     return (
       <div className="panel empty">
-        <p className="big-emoji" aria-hidden="true">😸</p>
-        <p>This ticket has vanished like the Cheshire Cat. Please scan a valid QR code.</p>
+        <p className="big-emoji" aria-hidden="true">🌨️</p>
+        <p>This ticket has melted away like snow. Please scan a valid QR code.</p>
         <Link className="btn" href="/">
           Back to registration
         </Link>
@@ -32,7 +32,7 @@ function TicketView() {
 
 export default function TicketPage() {
   return (
-    <Suspense fallback={<p className="muted center">Falling down the rabbit hole…</p>}>
+    <Suspense fallback={<p className="muted center">Shaking the snow globe…</p>}>
       <TicketView />
     </Suspense>
   );
