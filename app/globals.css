@@ -905,16 +905,29 @@ select:focus {
   text-align: right;
   opacity: 0.85;
 }
+/* 5 picture slots: 3 on the first row, 2 on the second */
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-top: 14px;
 }
+@media (max-width: 900px) {
+  .slot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .slot-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .slot-card {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
   align-content: start;
+  min-width: 0;
   padding: 14px;
   border-radius: 14px;
   border: 1px dashed var(--line);
@@ -923,23 +936,57 @@ select:focus {
 .slot-card.ready {
   border-style: solid;
 }
+.slot-card.unsaved {
+  border: 2px solid var(--glow);
+}
 .slot-title {
   margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   font-family: var(--display);
   color: var(--frost);
 }
-.slot-preview {
+.slot-badge {
+  font-family: var(--body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(110, 231, 168, 0.18);
+  color: #a8f0c9;
+}
+.slot-badge.warn {
+  background: rgba(246, 217, 139, 0.2);
+  color: var(--glow);
+}
+.slot-badge.empty-badge {
+  background: rgba(181, 201, 226, 0.15);
+  color: var(--muted);
+}
+.slot-preview,
+.slot-empty {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  height: auto;
   aspect-ratio: 4 / 3;
   object-fit: contain;
   border-radius: 10px;
   background: var(--snow);
 }
-.slot-preview.empty {
+.slot-empty {
   display: grid;
   place-items: center;
   color: #5a7190;
   font-style: italic;
+}
+.slot-card input {
+  min-width: 0;
+}
+.slot-card .focus-frame {
+  justify-self: center;
 }
 .upload-btn {
   display: inline-flex;

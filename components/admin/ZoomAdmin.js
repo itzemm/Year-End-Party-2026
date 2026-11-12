@@ -12,6 +12,19 @@ import { ZOOM_LOCK_MS, ZOOM_SCALES, ZOOM_STEP_MS, zoomPhase } from "@/lib/rules"
 export default function ZoomAdmin() {
   const [items, setItems] = useState(null);
   const [error, setError] = useState("");
+  const [unsaved, setUnsaved] = useState({}); // slot -> true when it has unsaved changes
+  const anyUnsaved = Object.values(unsaved).some(Boolean);
+
+  // Warn before leaving the page with pictures that haven't been saved yet.
+  useEffect(() => {
+    if (!anyUnsaved) return;
+    const warn = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [anyUnsaved]);
   const { data: game, refresh, setData: setGame } = usePolling(fetchZoom, (g) => (g?.status === "playing" ? 1500 : 3000));
 
   useEffect(() => {
@@ -42,15 +55,29 @@ export default function ZoomAdmin() {
         <h2 className="panel-title">🖼️ Pictures &amp; answers</h2>
         <p className="muted">
           Upload one picture per round and type the answer. Add other accepted answers separated by commas (e.g. “mug, coffee cup”).
-          Small typos are accepted automatically. Click the picture to choose where the close-up starts.
+          Small typos are accepted automatically. Click the picture to choose where the close-up starts, then press <b>Save</b>{" "}
+          on each round. Saved pictures are stored in the database and stay there when you close the page.
           {running && " Pictures are locked while a game is running."}
         </p>
+        {anyUnsaved && (
+          <p className="banner">
+            Rounds {Object.keys(unsaved).filter((k) => unsaved[k]).map((k) => Number(k) + 1).join(", ")} have unsaved changes — press Save
+            on each.
+          </p>
+        )}
         {!items ? (
           <p className="muted">Loading…</p>
         ) : (
           <div className="slot-grid">
             {items.map((item, slot) => (
-              <SlotEditor key={slot} slot={slot} item={item} disabled={running} onSaved={setItems} />
+              <SlotEditor
+                key={slot}
+                slot={slot}
+                item={item}
+                disabled={running}
+                onSaved={setItems}
+                onDirty={(d) => setUnsaved((u) => (u[slot] === d ? u : { ...u, [slot]: d }))}
+              />
             ))}
           </div>
         )}
@@ -180,7 +207,7 @@ function ZoomTimeline({ elapsed }) {
   );
 }
 
-function SlotEditor({ slot, item, disabled, onSaved }) {
+function SlotEditor({ slot, item, disabled, onSaved, onDirty }) {
   const [answer, setAnswer] = useState(item?.answer || "");
   const [alternatives, setAlternatives] = useState(item?.alternatives || "");
   const [img, setImg] = useState(null); // newly chosen picture (not saved yet)
@@ -203,6 +230,9 @@ function SlotEditor({ slot, item, disabled, onSaved }) {
     return () => url && URL.revokeObjectURL(url);
   }, [slot, item?.version]);
 
+  const dirty = Boolean(img) || answer !== (item?.answer || "") || alternatives !== (item?.alternatives || "");
+  useEffect(() => onDirty(dirty), [dirty]); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function choose(e) {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -214,7 +244,7 @@ function SlotEditor({ slot, item, disabled, onSaved }) {
       if (!answer) setAnswer(file.name.replace(/\.[^.]+$/, "").replace(/[_-]+/g, " ").trim());
       setNote("Click the picture to move the zoom spot, then save.");
     } catch (err) {
-      setNote(err.message);
+      setNote(`${err.message}. Please use a JPG or PNG (iPhone HEIC photos need converting first).`);
     }
   }
 
@@ -223,12 +253,18 @@ function SlotEditor({ slot, item, disabled, onSaved }) {
     setNote("");
     try {
       const images = img ? makeZoomLevels(img, focus) : undefined;
-      const { items } = await zoomAdminSave(slot, answer, alternatives, images);
+      await zoomAdminSave(slot, answer, alternatives, images);
+      // Read it back from the database to prove it was stored.
+      const { items } = await fetchZoomItems();
+      const stored = items[slot];
+      if (!stored || stored.answer !== answer.trim()) throw new Error("The server didn’t keep this picture — please try again");
+      const check = await fetchAdminImage(`/api/zoom/image?slot=${slot}&level=0&preview=1&v=${stored.version}`);
+      URL.revokeObjectURL(check);
       onSaved(items);
       setImg(null);
-      setNote("Saved ✓");
+      setNote("Saved ✓ Stored in the database.");
     } catch (err) {
-      setNote(err.message);
+      setNote(`Not saved: ${err.message}`);
     } finally {
       setBusy(false);
     }
@@ -245,12 +281,17 @@ function SlotEditor({ slot, item, disabled, onSaved }) {
     }
   }
 
-  const dirty = img || answer !== (item?.answer || "") || alternatives !== (item?.alternatives || "");
-
   return (
-    <div className={`slot-card ${item ? "ready" : ""}`}>
+    <div className={`slot-card ${item ? "ready" : ""} ${dirty ? "unsaved" : ""}`}>
       <p className="slot-title">
-        Round {slot + 1} {item && !img ? "✓" : ""}
+        Round {slot + 1}
+        {dirty ? (
+          <span className="slot-badge warn">Not saved</span>
+        ) : item ? (
+          <span className="slot-badge">Saved ✓</span>
+        ) : (
+          <span className="slot-badge empty-badge">Empty</span>
+        )}
       </p>
       {img ? (
         <FocusPicker img={img} focus={focus} onFocus={setFocus} />
@@ -258,7 +299,7 @@ function SlotEditor({ slot, item, disabled, onSaved }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img className="slot-preview" src={savedPreview} alt={`Round ${slot + 1} picture`} />
       ) : (
-        <div className="slot-preview empty">No picture yet</div>
+        <div className="slot-empty">No picture yet</div>
       )}
       <label className="btn small upload-btn" aria-disabled={disabled}>
         {item || img ? "Change picture" : "+ Upload picture"}
@@ -270,7 +311,7 @@ function SlotEditor({ slot, item, disabled, onSaved }) {
       </label>
       <label>
         Also accept <small className="muted">(optional, comma separated)</small>
-        <input value={alternatives} onChange={(e) => setAlternatives(e.target.value)} placeholder="mug, cup" disabled={disabled} />
+        <input value={alternatives} onChange={(e) => setAlternatives(e.target.value)} placeholder="e.g. mug, cup" disabled={disabled} />
       </label>
       <div className="actions">
         <button className="btn small primary" onClick={save} disabled={disabled || busy || !dirty || !answer.trim() || (!item && !img)}>
@@ -303,7 +344,7 @@ function FocusPicker({ img, focus, onFocus }) {
     <div className="focus-picker">
       <div
         className="focus-frame"
-        style={{ aspectRatio: `${W} / ${H}` }}
+        style={{ aspectRatio: `${W} / ${H}`, width: `min(100%, ${Math.round((260 * W) / H)}px)` }}
         onClick={(e) => {
           const box = e.currentTarget.getBoundingClientRect();
           onFocus({ x: (e.clientX - box.left) / box.width, y: (e.clientY - box.top) / box.height });
