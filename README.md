@@ -34,6 +34,20 @@ Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR co
 3. **■ Stop round** cancels the round at any point (while the timer runs or during the reveal). Picks lock and no winner is declared. Start a new round when ready.
 4. If someone in 1–50 picked a number nobody else did, the smallest one wins. Otherwise click **Next page** and open **51 → 100**. Guests' phones follow along live.
 
+### Broken Telephone (3 teams of 5)
+1. **🎲 Generate teams**: 3 random teams of 5 from the registered guests, shown as a table. Each team's current player is highlighted. **↻** swaps someone (e.g. not here) for another random guest who isn't on a team.
+2. Set the **secret sentence**: type one or press **🎲 Random**. It stays hidden on the big screen unless you click Show.
+3. **Start game**. Team players open Games → Broken Telephone on their phones (logged in).
+4. Press **▶ Start timer** for each turn (all 3 teams play at the same time):
+   - Player 1 sees the sentence and **draws it**: 1 minute.
+   - Players 2–4 see the previous drawing and **copy it**: 30 seconds each.
+   - Player 5 sees the last drawing and **writes what they think it is**: 30 seconds.
+
+   When time's up, whatever is on the phone is sent automatically and the highlight jumps to the next player. If someone doesn't draw, the next person gets the drawing before them.
+5. **Reveal every team's drawings & answers**, then **Reveal the secret sentence**. Everyone's phone shows the reveal too. **Stop game** ends it at any time (teams and sentence are kept).
+
+Nobody can see the sentence or anyone's drawing except the player whose turn it is, until the reveal.
+
 ### Lucky Draw
 1. Add prizes with a name and photo.
 2. Click **Draw this** on a prize: every guest's Lucky Draw page now shows that prize.
@@ -72,13 +86,14 @@ app/
   admin/                                     admin area (behind the snow globe)
   api/                                       API routes (see below)
 components/
-  admin/      AdminApp, RegistrationAdmin, ZoomAdmin, SunAdmin, LuckyAdmin, PrizeWheel, JoinQr
-  games/      ZoomPlayer, ZoomStage, Leaderboard, SunPlayer, ChestGrid, LoginPrompt
+  admin/      AdminApp, RegistrationAdmin, ZoomAdmin, SunAdmin, TelAdmin, LuckyAdmin, PrizeWheel, JoinQr
+  games/      ZoomPlayer, ZoomStage, Leaderboard, SunPlayer, ChestGrid, TelPlayer, TelTeams, TelReveal, DrawingPad, LoginPrompt
 lib/
   kv.js         storage (Upstash Redis, or in-memory for local dev)
   db.js         guests, logins, prizes, lucky draw
   zoomGame.js   Guess the Item server logic
   sunGame.js    Smallest Unique Number server logic
+  telGame.js    Broken Telephone server logic
   rules.js      shared timings, answer matching and scoring
   imageTools.js resizing and zoom-level cropping (in the admin's browser)
   hooks.js      server clock, polling
@@ -91,6 +106,7 @@ lib/
 | `/api/login`, `/api/logout`, `/api/me` | guests | log in with name/ticket + code; own ticket and wins |
 | `/api/zoom` · `/api/zoom/me` · `/api/zoom/answer` · `/api/zoom/image` | guests | Guess the Item state, own result, answer, pictures (time-gated) |
 | `/api/sun` · `/api/sun/me` · `/api/sun/entry` | guests | Smallest Unique Number state, own pick, pick a number |
+| `/api/tel` · `/api/tel/me` · `/api/tel/submit` · `/api/tel/image` | guests | Broken Telephone state, own turn (sentence or previous drawing), send drawing/guess, revealed drawings |
 | `/api/lucky` (GET) | guests | current prize and revealed winner |
 | `/api/time` | anyone | server clock for countdowns |
-| `/api/guests…`, `/api/zoom/admin`, `/api/sun/admin`, `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |
+| `/api/guests…`, `/api/zoom/admin`, `/api/sun/admin`, `/api/tel/admin`, `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |

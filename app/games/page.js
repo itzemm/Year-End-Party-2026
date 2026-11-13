@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import ZoomPlayer from "@/components/games/ZoomPlayer";
 import SunPlayer from "@/components/games/SunPlayer";
+import TelPlayer from "@/components/games/TelPlayer";
 
 const GAMES = [
   {
@@ -16,6 +17,12 @@ const GAMES = [
     label: "Smallest Unique Number",
     icon: "🔢",
     blurb: "You have 2 minutes to pick a number from 1 to 100. The smallest number that nobody else picked wins!",
+  },
+  {
+    id: "tel",
+    label: "Broken Telephone",
+    icon: "📞",
+    blurb: "Three teams pass a secret sentence along as drawings — one person at a time. Watch it fall apart, then see the big reveal!",
   },
 ];
 
@@ -50,7 +57,7 @@ export default function GamesPage() {
           <span aria-hidden="true">{game.icon}</span> {game.label}
         </h2>
         <p className="muted">{game.blurb}</p>
-        {active === "zoom" ? <ZoomPlayer /> : <SunPlayer />}
+        {active === "zoom" ? <ZoomPlayer /> : active === "sun" ? <SunPlayer /> : <TelPlayer />}
       </section>
     </div>
   );

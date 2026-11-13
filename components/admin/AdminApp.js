@@ -6,6 +6,7 @@ import RegistrationAdmin from "./RegistrationAdmin";
 import ZoomAdmin from "./ZoomAdmin";
 import SunAdmin from "./SunAdmin";
 import LuckyAdmin from "./LuckyAdmin";
+import TelAdmin from "./TelAdmin";
 import { clearPasscode } from "@/lib/store";
 import { useAdminStatus } from "@/lib/hooks";
 
@@ -13,6 +14,7 @@ const SECTIONS = [
   { id: "registration", label: "Registration", icon: "🎟️", Component: RegistrationAdmin },
   { id: "zoom", label: "Guess the Item", icon: "🔍", Component: ZoomAdmin },
   { id: "sun", label: "Smallest Unique Number", icon: "🔢", Component: SunAdmin },
+  { id: "tel", label: "Broken Telephone", icon: "📞", Component: TelAdmin },
   { id: "lucky", label: "Lucky Draw", icon: "🎁", Component: LuckyAdmin },
 ];
 
