@@ -19,7 +19,10 @@ Click the snow globe in the top-right corner and enter the admin password (`ADMI
 At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Guess the Item / Smallest Unique Number / Broken Telephone / Spotlight**. Guests' phones switch within a few seconds. Starting a game (Start game, Start round, Draw names) switches it live automatically.
 
 ### Registration
-Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR code, a lucky-draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code and logs out the old one. Export/Import backs up the guest list.
+Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR code, a lucky-draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code and logs out the old one. **⬇ Export to Excel** downloads the guest list as an .xlsx file (ticket number, name, access code, registration time, any lucky-draw prize). **⬆ Import** accepts:
+- that Excel export: restores or updates guests, keeping their ticket numbers and access codes (no duplicates). The last column, *System ID*, is how guests are matched, so don't edit it;
+- any Excel list of names (a column called “Name”, or just names in column A): each name is registered as a new guest;
+- old .json backups from earlier versions.
 
 ### Guess the Item (5 rounds)
 1. Upload 5 pictures and type each answer. Add other accepted answers with commas (“mug, coffee cup”). Small typos, plurals and “a/the” are accepted automatically. Click a picture to choose where the close-up starts.

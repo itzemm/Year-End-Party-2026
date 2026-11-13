@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import QRCode from "qrcode";
 import TicketCard, { QR_OPTIONS } from "@/components/TicketCard";
-import { addGuest, exportData, importData, inviteMessage, removeGuest, resetCode, ticketUrl } from "@/lib/store";
+import { addGuest, exportGuestsExcel, importGuestsFile, inviteMessage, removeGuest, resetCode, ticketUrl } from "@/lib/store";
 import { useStore } from "@/lib/useStore";
 
 export default function RegistrationAdmin() {
@@ -72,12 +72,12 @@ export default function RegistrationAdmin() {
   }
 
   async function handleExport() {
-    const blob = new Blob([await exportData()], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `winter-wonderland-guests-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    try {
+      const n = await exportGuestsExcel();
+      setNote(`Exported ${n} guests to Excel.`);
+    } catch (err) {
+      setNote(`Couldn’t export: ${err.message}`);
+    }
   }
 
   async function handleImport(e) {
@@ -85,7 +85,14 @@ export default function RegistrationAdmin() {
     e.target.value = "";
     if (!file) return;
     try {
-      setNote(`Imported ${await importData(await file.text())} guests.`);
+      const r = await importGuestsFile(file);
+      const parts = [
+        r.created && `${r.created} new guest${r.created === 1 ? "" : "s"} registered`,
+        r.updated && `${r.updated} existing updated`,
+        r.restored && `${r.restored} restored`,
+        r.skipped && `${r.skipped} row${r.skipped === 1 ? "" : "s"} skipped (unrecognised ticket number)`,
+      ].filter(Boolean);
+      setNote(`Import done: ${parts.join(", ") || "nothing to change"}.`);
     } catch (err) {
       setNote(`Couldn’t read that file: ${err.message}`);
     }
@@ -158,12 +165,18 @@ export default function RegistrationAdmin() {
           <div className="actions">
             <input className="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name or ticket…" />
             <button className="btn small" onClick={handleExport} disabled={!guests.length}>
-              Export
+              ⬇ Export to Excel
             </button>
-            <button className="btn small" onClick={() => fileRef.current?.click()}>
-              Import
+            <button className="btn small" onClick={() => fileRef.current?.click()} title="Excel export, a list of names in Excel, or an old .json backup">
+              ⬆ Import
             </button>
-            <input ref={fileRef} type="file" accept="application/json" hidden onChange={handleImport} />
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.json,application/json"
+              hidden
+              onChange={handleImport}
+            />
           </div>
         </div>
         {note && <p className="note">{note}</p>}

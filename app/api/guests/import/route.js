@@ -1,15 +1,14 @@
-import { NextResponse } from "next/server";
+import { route, readJson } from "@/lib/route";
 import { importGuests } from "@/lib/db";
-import { checkAuth, errorResponse } from "@/lib/auth";
+import { httpError } from "@/lib/kv";
 
-export async function POST(request) {
-  const denied = checkAuth(request);
-  if (denied) return denied;
-  try {
-    const body = await request.json();
-    if (!Array.isArray(body.guests)) return NextResponse.json({ error: "File has no guest list" }, { status: 400 });
-    return NextResponse.json({ imported: await importGuests(body.guests) });
-  } catch (err) {
-    return errorResponse(err);
-  }
-}
+// { guests: [{ name, ticketNo?, accessCode?, id?, createdAt? }] } — see importGuests.
+export const POST = route(
+  async (request) => {
+    const { guests } = await readJson(request);
+    if (!Array.isArray(guests) || !guests.length) throw httpError("No guests found in that file", 400);
+    if (guests.length > 2000) throw httpError("That’s more than 2,000 rows — split the file", 400);
+    return importGuests(guests);
+  },
+  { admin: true }
+);
