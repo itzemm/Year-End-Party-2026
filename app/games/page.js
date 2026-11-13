@@ -1,64 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import ZoomPlayer from "@/components/games/ZoomPlayer";
 import SunPlayer from "@/components/games/SunPlayer";
 import TelPlayer from "@/components/games/TelPlayer";
+import StagePlayer from "@/components/games/StagePlayer";
+import { fetchLive } from "@/lib/store";
+import { usePolling } from "@/lib/hooks";
+import { gameById } from "@/lib/games";
 
-const GAMES = [
-  {
-    id: "zoom",
-    label: "Guess the Item",
-    icon: "🔍",
-    blurb: "A mystery picture zooms out every 10 seconds. Type what it is — 5 pictures, and the most correct answers in the fastest time wins.",
-  },
-  {
-    id: "sun",
-    label: "Smallest Unique Number",
-    icon: "🔢",
-    blurb: "You have 2 minutes to pick a number from 1 to 100. The smallest number that nobody else picked wins!",
-  },
-  {
-    id: "tel",
-    label: "Broken Telephone",
-    icon: "📞",
-    blurb: "Three teams pass a secret sentence along as drawings — one person at a time. Watch it fall apart, then see the big reveal!",
-  },
-];
+const PLAYERS = { zoom: ZoomPlayer, sun: SunPlayer, tel: TelPlayer, stage: StagePlayer };
 
+// Guests only see the game the host has put live; it switches automatically.
 export default function GamesPage() {
-  const [active, setActive] = useState(GAMES[0].id);
+  const { data } = usePolling(fetchLive, () => 3000);
+  if (data === undefined) return <p className="muted center">Shaking the snow globe…</p>;
+  const game = gameById(data.game);
 
-  // Links like /games?game=sun (used by the join QR codes) open that game.
-  useEffect(() => {
-    const wanted = new URLSearchParams(window.location.search).get("game");
-    if (GAMES.some((g) => g.id === wanted)) setActive(wanted);
-  }, []);
-
-  function choose(id) {
-    setActive(id);
-    const url = new URL(window.location.href);
-    url.searchParams.set("game", id);
-    window.history.replaceState(null, "", url);
+  if (!game) {
+    return (
+      <section className="panel empty">
+        <p className="big-emoji" aria-hidden="true">🎮</p>
+        <h2 className="panel-title">No game right now</h2>
+        <p className="muted">Keep this page open — the next game will appear here as soon as the host starts it.</p>
+      </section>
+    );
   }
 
-  const game = GAMES.find((g) => g.id === active);
+  const Player = PLAYERS[game.id];
   return (
-    <div className="stack">
-      <div className="subtabs" role="tablist">
-        {GAMES.map((g) => (
-          <button key={g.id} role="tab" aria-selected={active === g.id} className={`subtab ${active === g.id ? "active" : ""}`} onClick={() => choose(g.id)}>
-            <span aria-hidden="true">{g.icon}</span> {g.label}
-          </button>
-        ))}
-      </div>
-      <section className="panel">
-        <h2 className="panel-title">
-          <span aria-hidden="true">{game.icon}</span> {game.label}
-        </h2>
-        <p className="muted">{game.blurb}</p>
-        {active === "zoom" ? <ZoomPlayer /> : active === "sun" ? <SunPlayer /> : <TelPlayer />}
-      </section>
-    </div>
+    <section className="panel">
+      <p className="eyebrow live-label">
+        <span className="live-dot" aria-hidden="true" /> Now playing
+      </p>
+      <h2 className="panel-title">
+        <span aria-hidden="true">{game.icon}</span> {game.label}
+      </h2>
+      <p className="muted">{game.blurb}</p>
+      <Player key={game.id} />
+    </section>
   );
 }

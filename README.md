@@ -7,13 +7,16 @@ A party site for ~120 guests: tickets with QR codes, two live phone games, and a
 | Page | Who | What it does |
 | --- | --- | --- |
 | **My Ticket** (`/my-ticket`, the home page) | Guests | Log in with **name (or ticket number) + access code**. Shows their ticket, QR code and any lucky-draw wins. |
-| **Games** (`/games`) | Guests | Play **Guess the Item** and **Smallest Unique Number** on their phone (must be logged in). |
+| **Games** (`/games`) | Guests | Shows **only the game the host has put live** (Guess the Item, Smallest Unique Number, Broken Telephone or Spotlight), and switches automatically. Playing needs a login. |
 | **Lucky Draw** (`/lucky-draw`) | Guests | Shows the prize being drawn for and who won. |
 | **Admin** (`/admin`, the ❄ snow globe, top right) | Admins (password) | Registration, running both games on the big screen, prizes and the wheel. |
 
 ## Admin area
 
 Click the snow globe in the top-right corner and enter the admin password (`ADMIN_PASSCODE`). The browser remembers it until you click **Log out**.
+
+### What guests see (the live switch)
+At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Guess the Item / Smallest Unique Number / Broken Telephone / Spotlight**. Guests' phones switch within a few seconds. Starting a game (Start game, Start round, Draw names) switches it live automatically.
 
 ### Registration
 Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR code, a lucky-draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code and logs out the old one. Export/Import backs up the guest list.
@@ -47,6 +50,11 @@ Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR co
 5. **Reveal every team's drawings & answers**, then **Reveal the secret sentence**. Everyone's phone shows the reveal too. **Stop game** ends it at any time (teams and sentence are kept).
 
 Nobody can see the sentence or anyone's drawing except the player whose turn it is, until the reveal.
+
+### Spotlight (on stage)
+1. **🎲 Draw 5 names**: 5 random guests are called up on stage, and their phones say “You're on stage!”. **Nobody is ever drawn twice** (until you press *Start over* under Previous rounds). **↻ not here** swaps someone for another random guest.
+2. **🎲 Reveal a random question** (e.g. “Who has the longest hair?”), **Different question**, or type your own.
+3. Tap the winner(s) and **🏆 Confirm**. Everyone sees the winners. **Next round** draws 5 new names.
 
 ### Lucky Draw
 1. Add prizes with a name and photo.
@@ -86,14 +94,16 @@ app/
   admin/                                     admin area (behind the snow globe)
   api/                                       API routes (see below)
 components/
-  admin/      AdminApp, RegistrationAdmin, ZoomAdmin, SunAdmin, TelAdmin, LuckyAdmin, PrizeWheel, JoinQr
-  games/      ZoomPlayer, ZoomStage, Leaderboard, SunPlayer, ChestGrid, TelPlayer, TelTeams, TelReveal, DrawingPad, LoginPrompt
+  admin/      AdminApp, LiveSwitch, RegistrationAdmin, ZoomAdmin, SunAdmin, TelAdmin, StageAdmin, LuckyAdmin, PrizeWheel, JoinQr
+  games/      ZoomPlayer, ZoomStage, Leaderboard, SunPlayer, ChestGrid, TelPlayer, TelTeams, TelReveal, DrawingPad, StagePlayer, LoginPrompt
 lib/
   kv.js         storage (Upstash Redis, or in-memory for local dev)
   db.js         guests, logins, prizes, lucky draw
   zoomGame.js   Guess the Item server logic
   sunGame.js    Smallest Unique Number server logic
   telGame.js    Broken Telephone server logic
+  stageGame.js  Spotlight server logic
+  live.js       which game guests see
   rules.js      shared timings, answer matching and scoring
   imageTools.js resizing and zoom-level cropping (in the admin's browser)
   hooks.js      server clock, polling
@@ -107,6 +117,7 @@ lib/
 | `/api/zoom` · `/api/zoom/me` · `/api/zoom/answer` · `/api/zoom/image` | guests | Guess the Item state, own result, answer, pictures (time-gated) |
 | `/api/sun` · `/api/sun/me` · `/api/sun/entry` | guests | Smallest Unique Number state, own pick, pick a number |
 | `/api/tel` · `/api/tel/me` · `/api/tel/submit` · `/api/tel/image` | guests | Broken Telephone state, own turn (sentence or previous drawing), send drawing/guess, revealed drawings |
+| `/api/live` (GET) · `/api/stage` | guests | which game is live; Spotlight state |
 | `/api/lucky` (GET) | guests | current prize and revealed winner |
 | `/api/time` | anyone | server clock for countdowns |
-| `/api/guests…`, `/api/zoom/admin`, `/api/sun/admin`, `/api/tel/admin`, `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |
+| `/api/guests…`, `/api/zoom/admin`, `/api/sun/admin`, `/api/tel/admin`, `/api/stage/admin`, `/api/live` (POST), `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |

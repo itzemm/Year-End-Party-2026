@@ -1,4 +1,5 @@
 import { route, readJson } from "@/lib/route";
+import { setLive } from "@/lib/live";
 import { deleteZoomItem, getZoomPublic, listZoomItems, saveZoomItem, zoomControl } from "@/lib/zoomGame";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,10 @@ export const POST = route(
     const body = await readJson(request);
     if (body.action === "save") await saveZoomItem(Number(body.slot), body);
     else if (body.action === "delete") await deleteZoomItem(Number(body.slot));
-    else await zoomControl(body.action);
+    else {
+      await zoomControl(body.action);
+      if (body.action === "start") await setLive("zoom"); // starting a game shows it on guests' phones
+    }
     return { items: await listZoomItems(), game: await getZoomPublic() };
   },
   { admin: true }
