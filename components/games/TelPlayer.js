@@ -5,9 +5,9 @@ import Link from "next/link";
 import DrawingPad from "./DrawingPad";
 import TelTeams from "./TelTeams";
 import TelReveal from "./TelReveal";
-import { fetchTel, fetchTelMe, submitTel } from "@/lib/store";
+import { fetchTel, fetchTelMe, submitAudienceGuess, submitTel } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
-import { telPhase } from "@/lib/rules";
+import { TEL_TEAM_NAMES, telPhase, telStepsDone } from "@/lib/rules";
 
 const secs = (ms) => Math.max(0, Math.ceil(ms / 1000));
 const names = (game, step) => game.teams.map((t) => t.members[step]?.name).filter(Boolean).join(", ");
@@ -24,7 +24,9 @@ export default function TelPlayer() {
   const now = useServerNow(250, playing);
   const [me, setMe] = useState(null);
   onTeamRef.current = Boolean(me?.onTeam);
-  const meKey = game ? `${game.status}:${game.gameId}:${game.step}:${game.endsAt}:${game.teams.length}` : "";
+  // Re-fetch my info when the turn changes or a turn's drawings become final (audience view).
+  const stepsDone = game?.status === "playing" ? telStepsDone(game, now) : 0;
+  const meKey = game ? `${game.status}:${game.gameId}:${game.step}:${game.endsAt}:${game.teams.length}:${stepsDone}` : "";
   useEffect(() => {
     if (meKey) fetchTelMe().then(setMe).catch(() => {});
   }, [meKey]);
@@ -42,7 +44,15 @@ export default function TelPlayer() {
     return (
       <div className="panel-inner">
         <h3 className="sun-heading">📞 The big reveal</h3>
-        <TelReveal chains={game.chains} teams={game.teams} sentence={game.sentence} />
+        <TelReveal
+          chains={game.chains}
+          teams={game.teams}
+          sentence={game.sentence}
+          audienceTop={game.audienceTop}
+          audienceCount={game.audienceCount}
+          myGuess={me?.audience?.guess}
+          meTicket={myTicket || me?.audience?.guess?.ticketNo}
+        />
       </div>
     );
   }
@@ -58,7 +68,8 @@ export default function TelPlayer() {
   if (me && !me.loggedIn) {
     mine = (
       <p className="muted center small-print">
-        On a team? <Link href="/my-ticket?next=/games?game=tel">Log in on My Ticket</Link> so you can draw when it’s your turn.
+        <Link href="/my-ticket?next=/games">Log in on My Ticket</Link> to draw when it’s your turn — or, if you’re not on a team, to guess the sentence
+        yourself.
       </p>
     );
   } else if (me?.onTeam) {
@@ -75,8 +86,78 @@ export default function TelPlayer() {
       {playing && phase.kind === "running" && <p className={`big-timer ${game.endsAt - now < 10000 ? "urgent" : ""}`}>{secs(game.endsAt - now)}</p>}
       <p className="center">{status}</p>
       {mine}
+      {playing && me?.audience && <AudiencePanel audience={me.audience} onGuess={(guess) => setMe((m) => ({ ...m, audience: { ...m.audience, guess } }))} />}
       <TelTeams teams={game.teams} active={playing ? phase.active : game.teams.length ? 0 : null} submitted={game.submitted} meTicket={myTicket} />
       {error && <p className="note">{error}</p>}
+    </div>
+  );
+}
+
+// Guests not on a team watch each team's finished drawings and guess the sentence.
+function AudiencePanel({ audience, onGuess }) {
+  const [text, setText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const any = audience.drawings.some((d) => d.length);
+
+  async function send(e) {
+    e.preventDefault();
+    if (!text.trim()) return;
+    setBusy(true);
+    setError("");
+    try {
+      const { guess } = await submitAudienceGuess(text);
+      onGuess(guess);
+      setText("");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="audience-panel">
+      <h3 className="sun-heading">🕵️ Audience: guess the secret sentence</h3>
+      <p className="muted center small-print">
+        Each team’s drawings appear here as their turns finish. Guess any time — you can change it until the teams’ answers are revealed. The closest
+        guess wins!
+      </p>
+      {any ? (
+        <div className="audience-drawings">
+          {audience.drawings.map((steps, t) => (
+            <div key={t} className="audience-team">
+              <small>{TEL_TEAM_NAMES[t]}</small>
+              <div className="audience-row">
+                {steps.map((d, s) =>
+                  d.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={s} src={d.imageUrl} alt={`Drawing ${s + 1} by ${d.name}`} title={`${s + 1}. ${d.name}`} />
+                  ) : (
+                    <span key={s} className="audience-missing" title={`${s + 1}. ${d.name}`}>
+                      —
+                    </span>
+                  )
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="center">✏️ The first drawings will show up here when player 1’s time is up.</p>
+      )}
+      {audience.guess && (
+        <p className="my-pick">
+          Your guess: <b className="answer-text">“{audience.guess.text}”</b>
+        </p>
+      )}
+      <form className="sun-form" onSubmit={send}>
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="I think the sentence is…" maxLength={160} />
+        <button className="btn primary" type="submit" disabled={busy || !text.trim()}>
+          {audience.guess ? "Change my guess" : "Send my guess"}
+        </button>
+      </form>
+      {error && <p className="note error-text center">{error}</p>}
     </div>
   );
 }

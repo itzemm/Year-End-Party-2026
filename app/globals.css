@@ -2103,3 +2103,92 @@ button.stage-card:hover {
   color: var(--ink);
   font-weight: 700;
 }
+
+/* Broken Telephone audience */
+.audience-panel {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--glow);
+  background: rgba(246, 217, 139, 0.08);
+}
+.audience-drawings {
+  display: grid;
+  gap: 8px;
+}
+.audience-team small {
+  color: var(--muted);
+}
+.audience-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.audience-row img,
+.audience-missing {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background: #fff;
+  object-fit: contain;
+}
+.audience-missing {
+  display: grid;
+  place-items: center;
+  background: rgba(181, 201, 226, 0.15);
+  color: var(--muted);
+}
+.match-pill {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(110, 231, 168, 0.18);
+  color: #c9f7dd;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.tel-audience h3 {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  color: var(--frost);
+}
+.tel-audience .leaderboard {
+  width: 100%;
+  margin: 0 auto;
+}
+.audience-guess {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+@media (max-width: 560px) {
+  .tel-table {
+    border-spacing: 3px;
+  }
+  .tel-table th {
+    font-size: 0.78rem;
+    padding: 2px;
+    font-family: var(--body);
+    font-weight: 700;
+  }
+  .tel-table td {
+    padding: 6px 3px;
+    font-size: 0.82rem;
+    line-height: 1.15;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+  }
+  .tel-table th.tel-turn,
+  .tel-table td.tel-turn {
+    width: 2.6em;
+  }
+  .tel-turn small {
+    display: none;
+  }
+}
+.tel-audience .leaderboard li {
+  grid-template-columns: 2.4em minmax(0, 1fr) auto;
+}

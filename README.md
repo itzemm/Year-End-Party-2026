@@ -54,6 +54,8 @@ Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR co
 
 Nobody can see the sentence or anyone's drawing except the player whose turn it is, until the reveal.
 
+**Audience:** every logged-in guest who isn't on a team can play along on their phone. They see each team's drawings as each turn finishes (team players never see them), and they can guess the sentence and change their guess until the teams' answers are revealed. When the sentence is revealed, the 5 closest audience guesses are shown, along with each team's final answer, with a % match. The % is the share of the sentence's key words (typos and plurals forgiven); ties go to whoever guessed earliest.
+
 ### Spotlight (on stage)
 1. **🎲 Draw 5 names**: 5 random guests are called up on stage, and their phones say “You're on stage!”. **Nobody is ever drawn twice** (until you press *Start over* under Previous rounds). **↻ not here** swaps someone for another random guest.
 2. **🎲 Reveal a random question** (e.g. “Who has the longest hair?”), **Different question**, or type your own.

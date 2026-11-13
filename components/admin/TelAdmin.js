@@ -116,13 +116,24 @@ export default function TelAdmin() {
               </button>
             )}
           </div>
+          <p className="center">
+            🕵️ <b>{game.audienceCount || 0}</b> audience guess{game.audienceCount === 1 ? "" : "es"} so far — guests not on a team see finished drawings and guess the
+            sentence on their phones.
+          </p>
           <p className="muted small-print center">Space or → presses the big button. ↻ swaps a player who hasn’t played yet for another random guest.</p>
         </div>
       )}
 
       {(game.status === "revealTeams" || game.status === "revealAnswer") && (
         <div className="host-play">
-          <TelReveal chains={game.chains} teams={game.teams} sentence={game.status === "revealAnswer" ? game.sentence : null} big />
+          <TelReveal
+            chains={game.chains}
+            teams={game.teams}
+            sentence={game.status === "revealAnswer" ? game.sentence : null}
+            audienceTop={game.audienceTop}
+            audienceCount={game.audienceCount}
+            big
+          />
           <div className="actions">
             {game.status === "revealTeams" ? (
               <button className="btn primary big" onClick={() => act("revealAnswer")} disabled={busy}>
