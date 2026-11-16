@@ -39,7 +39,7 @@ At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Spo
 ### 2. Guess the Item (5 rounds)
 1. Upload 5 pictures and type each answer (add other accepted answers with commas). Click a picture to choose where the close-up starts, then **Save** each round.
 2. **Start game**. Each picture **zooms out every 10 seconds, 3 times**, then stays fully zoomed out for **15 more seconds**. Then answers lock and the answer is revealed.
-3. **Show top 3 →** shows the leaderboard (🥇🥈🥉), then **Next picture →**. After picture 5 it shows **the 3 winners**: most correct answers, then fastest total time.
+3. **Show Leaderboard →** shows the leaderboard (🥇🥈🥉), then **Next picture →**. After picture 5 it shows **the 3 winners**: most correct answers, then fastest total time.
 
 ### 3. Smallest Unique Number
 1. **Start 1-minute round**. Guests pick a number from **1 to 100** on their phones. When the minute is up (or you press *Everyone's in — lock numbers now*), numbers lock.

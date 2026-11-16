@@ -177,7 +177,7 @@ function HostPanel({ game, items, onControl, error }) {
           )}
           <div className="actions">
             <button className="btn primary big" onClick={() => onControl("next")} disabled={!game.reveal}>
-              {game.round + 1 >= game.rounds ? "Show the winners →" : "Show top 3 →"}
+              {game.round + 1 >= game.rounds ? "Show the winners →" : "Show Leaderboard →"}
             </button>
           </div>
         </div>
