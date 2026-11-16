@@ -24,7 +24,7 @@ Logging in is name-only (no code), so a guest could open someone else's ticket b
 
 ## Admin area
 
-Click the snow globe in the top-right corner and enter the admin password (`ADMIN_PASSCODE`). The games run in this order: **Spotlight → Guess the Item → Smallest Unique Number**, then the **Lucky Draw**.
+Click the snow globe in the top-right corner and enter the game admin password: **`games123`** (set `ADMIN_PASSCODE` in Vercel to change it). The games run in this order: **Spotlight → Guess the Item → Smallest Unique Number**, then the **Lucky Draw**.
 
 **⛶ Big screen** (on every game and the lucky draw) goes full screen and scales the whole view up to fill about 90% of the projector, so all text is very large. Admin-only controls are hidden on the big screen, and keyboard shortcuts keep working.
 
@@ -55,7 +55,7 @@ A wheel of **every registered guest's name**, each as large as its slice allows.
 1. In Vercel: **Add New → Project**, import this repo, **Deploy**.
 2. **Storage → Create Database → Upstash → Redis** (free plan) and connect it to the project. **Required**: without it nothing is saved.
 3. **Settings → Environment Variables**:
-   - `ADMIN_PASSCODE`: the admin password for the games and the lucky draw (**required**). Use something long.
+   - `ADMIN_PASSCODE` *(optional)*: the game admin password. Defaults to `games123`. If you set it, that value replaces `games123`.
    - `REGISTRATION_PASSCODE` *(optional)*: the registration password. Defaults to `registration123`.
    - `SESSION_SECRET`: a long random string (e.g. `openssl rand -hex 32`). Signs guest logins.
 4. **Deployments → ⋯ → Redeploy** so the settings take effect.
