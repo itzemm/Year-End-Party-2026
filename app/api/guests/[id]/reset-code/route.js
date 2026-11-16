@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { resetAccessCode } from "@/lib/db";
-import { checkAuth, errorResponse } from "@/lib/auth";
+import { checkDesk, errorResponse } from "@/lib/auth";
 
 export async function POST(request, { params }) {
-  const denied = checkAuth(request);
+  const denied = checkDesk(request);
   if (denied) return denied;
   try {
     const { id } = await params;

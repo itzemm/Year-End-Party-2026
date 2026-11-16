@@ -31,7 +31,9 @@ export default function LuckyAdmin() {
 
   const selected = prizes?.find((p) => p.id === selectedId) || null;
   const wonTickets = new Set((prizes || []).filter((p) => p.winner).map((p) => p.winner.ticketNo));
-  const eligible = allowRepeat ? guests : guests.filter((g) => !wonTickets.has(g.ticketNo));
+  // Only guests checked in at the front desk are on the wheel.
+  const present = guests.filter((g) => g.checkedInAt);
+  const eligible = allowRepeat ? present : present.filter((g) => !wonTickets.has(g.ticketNo));
   const wheelEntries = spin ? spin.pool : eligible.map((g) => ({ ticketNo: g.ticketNo, name: g.name }));
 
   async function choose(prize) {
@@ -115,7 +117,10 @@ export default function LuckyAdmin() {
               <input type="checkbox" checked={allowRepeat} onChange={(e) => setAllowRepeat(e.target.checked)} disabled={spinning} />
               Let previous winners win again
             </label>
-            <p className="muted small-print center">{eligible.length} guests on the wheel</p>
+            <p className="muted small-print center">
+              {eligible.length} checked-in guest{eligible.length === 1 ? "" : "s"} on the wheel
+              {guests.length > present.length && ` · ${guests.length - present.length} registered but not checked in (not eligible)`}
+            </p>
           </div>
         </div>
         {error && <p className="note error-text center">{error}</p>}

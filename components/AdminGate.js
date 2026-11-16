@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { fetchStatus, setPasscode } from "@/lib/store";
+import { fetchStatus, setDeskPasscode, setPasscode } from "@/lib/store";
 
-// Asks for the admin password (ADMIN_PASSCODE) and remembers it in this browser.
-export function PasscodeGate({ title = "Admins only" }) {
+// Asks for a password and remembers it in this browser.
+// role "admin": the admin area (ADMIN_PASSCODE). role "desk": the front desk (REGISTRATION_PASSCODE).
+export function PasscodeGate({ title = "Admins only", role = "admin" }) {
+  const desk = role === "desk";
   const [value, setValue] = useState("");
   const [message, setMessage] = useState("");
   const [checking, setChecking] = useState(false);
@@ -14,9 +16,9 @@ export function PasscodeGate({ title = "Admins only" }) {
     setChecking(true);
     setMessage("");
     try {
-      setPasscode(value.trim());
+      (desk ? setDeskPasscode : setPasscode)(value.trim());
       const status = await fetchStatus();
-      if (!status.authorized) setMessage("That password isn’t right — try again.");
+      if (!(desk ? status.deskAuthorized : status.authorized)) setMessage("That password isn’t right — try again.");
     } catch (err) {
       setMessage(err.message);
     } finally {
@@ -26,11 +28,11 @@ export function PasscodeGate({ title = "Admins only" }) {
 
   return (
     <section className="panel empty login-panel">
-      <p className="big-emoji" aria-hidden="true">🔮</p>
+      <p className="big-emoji" aria-hidden="true">{desk ? "🎫" : "🔮"}</p>
       <h2 className="panel-title">{title}</h2>
-      <p className="muted">Enter the admin password to continue.</p>
+      <p className="muted">{desk ? "Enter the front desk password to continue." : "Enter the admin password to continue."}</p>
       <form className="gate-form" onSubmit={submit}>
-        <input type="password" value={value} onChange={(e) => setValue(e.target.value)} placeholder="Admin password" autoFocus autoComplete="current-password" />
+        <input type="password" value={value} onChange={(e) => setValue(e.target.value)} placeholder={desk ? "Front desk password" : "Admin password"} autoFocus autoComplete="current-password" />
         <button className="btn primary" type="submit" disabled={checking}>
           Unlock
         </button>

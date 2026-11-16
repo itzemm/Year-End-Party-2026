@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { PasscodeGate } from "@/components/AdminGate";
-import RegistrationAdmin from "./RegistrationAdmin";
 import ZoomAdmin from "./ZoomAdmin";
 import SunAdmin from "./SunAdmin";
 import LuckyAdmin from "./LuckyAdmin";
@@ -13,7 +12,6 @@ import { clearPasscode } from "@/lib/store";
 import { useAdminStatus } from "@/lib/hooks";
 
 const SECTIONS = [
-  { id: "registration", label: "Registration", icon: "🎟️", Component: RegistrationAdmin },
   { id: "zoom", label: "Guess the Item", icon: "🔍", Component: ZoomAdmin },
   { id: "sun", label: "Smallest Unique Number", icon: "🔢", Component: SunAdmin },
   { id: "tel", label: "Broken Telephone", icon: "📞", Component: TelAdmin },
@@ -23,7 +21,7 @@ const SECTIONS = [
 
 export default function AdminApp() {
   const status = useAdminStatus();
-  const [active, setActive] = useState("registration");
+  const [active, setActive] = useState("zoom");
 
   useEffect(() => {
     const wanted = new URLSearchParams(window.location.search).get("section");

@@ -6,7 +6,7 @@ import TicketCard, { QR_OPTIONS } from "@/components/TicketCard";
 import { addGuest, exportGuestsExcel, importGuestsFile, inviteMessage, removeGuest, resetCode, ticketUrl } from "@/lib/store";
 import { useStore } from "@/lib/useStore";
 
-export default function RegistrationAdmin() {
+export default function RegistrationDesk() {
   const { guests, ready } = useStore();
   const [name, setName] = useState("");
   const [latest, setLatest] = useState(null);
@@ -190,6 +190,7 @@ export default function RegistrationAdmin() {
                   <th>Ticket</th>
                   <th>Name</th>
                   <th>Access code</th>
+                  <th>Checked in</th>
                   <th />
                 </tr>
               </thead>
@@ -199,6 +200,7 @@ export default function RegistrationAdmin() {
                     <td className="mono">{g.ticketNo}</td>
                     <td>{g.name}</td>
                     <td className="mono">{g.accessCode}</td>
+                    <td>{g.checkedInAt ? <span className="in-pill">✓ {new Date(g.checkedInAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span> : <span className="muted">—</span>}</td>
                     <td className="row-actions">
                       <button className="link" onClick={() => setLatest(g)}>
                         View

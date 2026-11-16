@@ -2,7 +2,8 @@ import { route } from "@/lib/route";
 import { clearWinners, listWinners } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-export const GET = route(async () => ({ winners: await listWinners() }), { admin: true });
+// Read by the front desk (Excel export) and the admin area.
+export const GET = route(async () => ({ winners: await listWinners() }), { desk: true });
 export const DELETE = route(
   async () => {
     await clearWinners();

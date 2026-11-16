@@ -9,7 +9,24 @@ A party site for ~120 guests: tickets with QR codes, two live phone games, and a
 | **My Ticket** (`/my-ticket`, the home page) | Guests | Log in with **name (or ticket number) + access code**. Shows their ticket, QR code and any lucky-draw wins. |
 | **Games** (`/games`) | Guests | Shows **only the game the host has put live** (Guess the Item, Smallest Unique Number, Broken Telephone or Spotlight), and switches automatically. Playing needs a login. |
 | **Lucky Draw** (`/lucky-draw`) | Guests | Shows the prize being drawn for and who won. |
-| **Admin** (`/admin`, the ❄ snow globe, top right) | Admins (password) | Registration, running both games on the big screen, prizes and the wheel. |
+| **Front desk** (`/desk`, the scanner icon, top left) | Desk staff (front desk password) | **Check-in** (scan ticket QR codes or check in by name) and **Registration**. |
+| **Admin** (`/admin`, the snow globe, top right) | Admins (admin password) | Running the games on the big screen, prizes and the lucky draw wheel. |
+
+## Front desk (check-in & registration)
+
+Click the scanner icon in the top-left corner and enter the front desk password (`REGISTRATION_PASSCODE`; the admin password works too). Give desk staff this password: it does **not** open the admin area.
+
+### Check-in
+- **📷 Start scanning** uses the phone or laptop camera (allow camera access when asked). Point it at a guest's ticket QR code, on their phone or printed. You get a beep and a big ✅ *Checked in*, ⚠️ *Already checked in at 19:02*, or ❌ *not a valid ticket / not registered*. Several phones can scan at the same time.
+- **Manual check-in:** search by name or ticket number and press **Check in**. **Undo** fixes a mistake.
+- Counters show how many are checked in, still to arrive and registered.
+- **Only checked-in guests are on the lucky draw wheel and can win.**
+
+### Registration
+Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR code, a lucky-draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code and logs out the old one. **⬇ Export to Excel** downloads the guest list as an .xlsx file (ticket number, name, access code, registration time, check-in time, any lucky-draw prize). **⬆ Import** accepts:
+- that Excel export: restores or updates guests, keeping their ticket numbers and access codes (no duplicates). The last column, *System ID*, is how guests are matched, so don't edit it;
+- any Excel list of names (a column called “Name”, or just names in column A): each name is registered as a new guest;
+- old .json backups from earlier versions.
 
 ## Admin area
 
@@ -17,12 +34,6 @@ Click the snow globe in the top-right corner and enter the admin password (`ADMI
 
 ### What guests see (the live switch)
 At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Guess the Item / Smallest Unique Number / Broken Telephone / Spotlight**. Guests' phones switch within a few seconds. Starting a game (Start game, Start round, Draw names) switches it live automatically.
-
-### Registration
-Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR code, a lucky-draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code and logs out the old one. **⬇ Export to Excel** downloads the guest list as an .xlsx file (ticket number, name, access code, registration time, any lucky-draw prize). **⬆ Import** accepts:
-- that Excel export: restores or updates guests, keeping their ticket numbers and access codes (no duplicates). The last column, *System ID*, is how guests are matched, so don't edit it;
-- any Excel list of names (a column called “Name”, or just names in column A): each name is registered as a new guest;
-- old .json backups from earlier versions.
 
 ### Guess the Item (5 rounds)
 1. Upload 5 pictures and type each answer. Add other accepted answers with commas (“mug, coffee cup”). Small typos, plurals and “a/the” are accepted automatically. Click a picture to choose where the close-up starts.
@@ -64,14 +75,15 @@ Nobody can see the sentence or anyone's drawing except the player whose turn it 
 ### Lucky Draw
 1. Add prizes with a name and photo.
 2. Click **Draw this** on a prize: every guest's Lucky Draw page now shows that prize.
-3. Click **Spin the wheel!** The wheel spins through every eligible guest and lands on the winner. Guests' phones reveal the winner when the wheel stops. Previous winners sit out unless you tick “Let previous winners win again”. Drawing a prize again (e.g. the winner wasn't there) replaces its winner.
+3. Click **Spin the wheel!** The wheel spins through every eligible guest (checked in, and not a previous winner) and lands on the winner. Guests' phones reveal the winner when the wheel stops. Previous winners sit out unless you tick “Let previous winners win again”. Drawing a prize again (e.g. the winner wasn't there) replaces its winner.
 
 ## Deploy to Vercel
 
 1. In Vercel: **Add New → Project**, import this repo, **Deploy**.
 2. **Storage → Create Database → Upstash → Redis** (free plan) and connect it to the project. **Required**: without it nothing is saved.
 3. **Settings → Environment Variables**:
-   - `ADMIN_PASSCODE`: the admin password (**required**, otherwise anyone can open the admin area). Use something long.
+   - `ADMIN_PASSCODE`: the admin password for the games and the lucky draw (**required**). Use something long.
+   - `REGISTRATION_PASSCODE`: the front desk password for check-in and registration (give this to desk staff). If not set, the admin password is used.
    - `SESSION_SECRET`: a long random string (e.g. `openssl rand -hex 32`). Signs guest logins.
 4. **Deployments → ⋯ → Redeploy** so the settings take effect.
 
@@ -125,4 +137,5 @@ lib/
 | `/api/live` (GET) · `/api/stage` | guests | which game is live; Spotlight state |
 | `/api/lucky` (GET) | guests | current prize and revealed winner |
 | `/api/time` | anyone | server clock for countdowns |
-| `/api/guests…`, `/api/zoom/admin`, `/api/sun/admin`, `/api/tel/admin`, `/api/stage/admin`, `/api/live` (POST), `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |
+| `/api/guests…`, `/api/checkin` | front desk | registration and check-in (front desk or admin password) |
+| `/api/zoom/admin`, `/api/sun/admin`, `/api/tel/admin`, `/api/stage/admin`, `/api/live` (POST), `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |

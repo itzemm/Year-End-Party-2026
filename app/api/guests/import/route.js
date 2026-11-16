@@ -10,5 +10,5 @@ export const POST = route(
     if (guests.length > 2000) throw httpError("That’s more than 2,000 rows — split the file", 400);
     return importGuests(guests);
   },
-  { admin: true }
+  { desk: true }
 );

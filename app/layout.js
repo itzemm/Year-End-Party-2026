@@ -2,6 +2,7 @@ import "./globals.css";
 import NavTabs from "@/components/NavTabs";
 import Snowfall from "@/components/Snowfall";
 import GlobeButton from "@/components/GlobeButton";
+import DeskButton from "@/components/DeskButton";
 
 export const metadata = {
   title: "Winter Wonderland · Year End Party 2026",
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <Snowfall />
+        <DeskButton />
         <GlobeButton />
         <header className="site-header">
           <p className="eyebrow">Year End Party 2026</p>
