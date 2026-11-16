@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import QRCode from "qrcode";
-import TicketCard, { QR_OPTIONS } from "@/components/TicketCard";
-import { fetchMe, login, logout, ticketUrl } from "@/lib/store";
+import TicketCard from "@/components/TicketCard";
+import { fetchMe, login, logout } from "@/lib/store";
 
 export default function MyTicketPage() {
   const [me, setMe] = useState(undefined); // undefined = loading, null = logged out
@@ -42,14 +41,6 @@ export default function MyTicketPage() {
 
   const { guest, wins } = me;
 
-  async function downloadQr() {
-    const dataUrl = await QRCode.toDataURL(ticketUrl(guest), { ...QR_OPTIONS, width: 1024 });
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `${guest.ticketNo}-ticket-qr.png`;
-    a.click();
-  }
-
   return (
     <div className="ticket-page">
       <p className="welcome">
@@ -66,12 +57,9 @@ export default function MyTicketPage() {
         </div>
       )}
 
-      <TicketCard guest={guest} url={ticketUrl(guest)} />
+      <TicketCard guest={guest} />
 
       <div className="actions">
-        <button className="btn" onClick={downloadQr}>
-          Save QR to phone
-        </button>
         <button
           className="btn ghost"
           onClick={async () => {
@@ -82,7 +70,7 @@ export default function MyTicketPage() {
           Log out
         </button>
       </div>
-      <p className="muted center small-print">Show this QR code at the door. Your lucky draw number is {guest.ticketNo}.</p>
+      <p className="muted center small-print">Not you? Log out and find your own name. Your lucky draw number is {guest.ticketNo}.</p>
     </div>
   );
 }
@@ -91,15 +79,13 @@ const HELP_TEXT = "Cannot find your name? Ask at the registration booth or find 
 
 function LoginForm({ onLoggedIn, initialError }) {
   const [query, setQuery] = useState("");
-  const [chosen, setChosen] = useState("");
   const [names, setNames] = useState(null); // null = not searched yet
-  const [code, setCode] = useState("");
   const [error, setError] = useState(initialError || "");
   const [busy, setBusy] = useState(false);
 
   // Suggest matching names as the guest types (after 2 letters).
   useEffect(() => {
-    if (chosen || query.trim().replace(/\s/g, "").length < 2) {
+    if (query.trim().replace(/\s/g, "").length < 2) {
       setNames(null);
       return;
     }
@@ -110,16 +96,14 @@ function LoginForm({ onLoggedIn, initialError }) {
         .catch(() => setNames([]));
     }, 250);
     return () => clearTimeout(t);
-  }, [query, chosen]);
+  }, [query]);
 
-  async function submit(e) {
-    e.preventDefault();
-    const identifier = chosen || query;
-    if (!identifier.trim()) return setError("Find your name first");
+  // Tapping your name opens your ticket.
+  async function choose(person) {
     setBusy(true);
     setError("");
     try {
-      await login(identifier, code);
+      await login(person.id);
       // Came here from a game? Go straight back to it.
       const next = new URLSearchParams(window.location.search).get("next");
       if (next && next.startsWith("/") && !next.startsWith("//")) {
@@ -129,7 +113,6 @@ function LoginForm({ onLoggedIn, initialError }) {
       await onLoggedIn();
     } catch (err) {
       setError(err.message);
-    } finally {
       setBusy(false);
     }
   }
@@ -138,57 +121,28 @@ function LoginForm({ onLoggedIn, initialError }) {
     <section className="panel login-panel">
       <p className="big-emoji" aria-hidden="true">🗝️</p>
       <h2 className="panel-title">Find your ticket</h2>
-      <p className="muted">Find your name, then enter the access code from your invitation.</p>
-      <form className="form" onSubmit={submit}>
+      <p className="muted">Search for your name and tap it.</p>
+      <div className="form">
         <label>
           Your name <small className="muted">(first name, then last name)</small>
-          {chosen ? (
-            <span className="chosen-name">
-              <b>{chosen}</b>
-              <button type="button" className="link" onClick={() => (setChosen(""), setQuery(""))}>
-                Not you?
-              </button>
-            </span>
-          ) : (
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. Holly Winters"
-              autoComplete="off"
-              autoCapitalize="words"
-              autoFocus
-            />
-          )}
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="e.g. Holly Winters" autoComplete="off" autoCapitalize="words" autoFocus />
         </label>
-        {!chosen && names && (
+        {names && (
           <ul className="name-results" role="listbox" aria-label="Matching names">
             {names.map((n) => (
-              <li key={n}>
-                <button type="button" onClick={() => (setChosen(n), setNames(null))}>
-                  {n}
+              <li key={n.id}>
+                <button type="button" onClick={() => choose(n)} disabled={busy}>
+                  {n.name}
+                  {n.ticketNo && <small className="muted mono"> {n.ticketNo}</small>}
                 </button>
               </li>
             ))}
             {names.length === 0 && <li className="muted name-none">No name found. {HELP_TEXT}</li>}
           </ul>
         )}
-        <label>
-          Access code
-          <input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="e.g. K7MPQ2"
-            autoComplete="one-time-code"
-            autoCapitalize="characters"
-            className="code-input"
-            required
-          />
-        </label>
+        {busy && <p className="muted center">Opening your ticket…</p>}
         {error && <p className="note error-text">{error}</p>}
-        <button className="btn primary" type="submit" disabled={busy}>
-          {busy ? "Turning the key…" : "Open my ticket"}
-        </button>
-      </form>
+      </div>
       <p className="help-line">
         <span className="help-icon" aria-hidden="true">
           ?

@@ -6,19 +6,21 @@ A party site for ~120 guests: tickets with QR codes, two live phone games, and a
 
 | Page | Who | What it does |
 | --- | --- | --- |
-| **My Ticket** (`/my-ticket`, the home page) | Guests | Guests **find their name** (first name, then last name), enter their **access code**, and see their ticket, QR code and any lucky draw win. The round **?** button explains who to ask for help. |
+| **My Ticket** (`/my-ticket`, the home page) | Guests | Guests **search for their name** (first name, then last name) and tap it to open their ticket (name + lucky draw number) and see any lucky draw win. No code needed. Guests who can't find their name are told to ask at the registration booth or find Patricia Yeo. |
 | **Games** (`/games`) | Guests | Shows **only the game the host has put live**, and switches automatically. Playing needs a login. |
 | **Lucky Draw** (`/lucky-draw`) | Guests | Shows the winner when the wheel stops. |
-| **Registration** (`/desk`, the scanner icon, top left) | Registration staff (`registration123`) | Register guests, look up access codes, export/import the guest list. |
+| **Registration** (`/desk`, the scanner icon, top left) | Registration staff (`registration123`) | Register guests, export/import the guest list. |
 | **Admin** (`/admin`, the snow globe, top right) | Admins (admin password) | Running the games on the big screen and the lucky draw wheel. |
 
 ## Registration (front desk)
 
 Click the scanner icon in the top-left corner and enter the registration password: **`registration123`** (set `REGISTRATION_PASSCODE` in Vercel to change it). Registration and the game admin are **completely separate**: each has its own password, sign-in and **Log out** button, and neither password opens the other area.
 
-Type the guest's **first name** and **last name** → **Create ticket**. The name is saved as “First Last”, which is how guests find themselves on My Ticket. Each guest gets a ticket with a QR code, a lucky draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code.
+Type the guest's **first name** and **last name** → **Create ticket**. The name is saved as “First Last”, which is how guests find themselves on My Ticket. Each guest gets a ticket with a lucky draw number (`WL26-0001`…). **Copy invite message** copies a ready-to-send message telling them how to find their ticket.
 
-**⬇ Export to Excel** downloads the guest list (.xlsx). **⬆ Import** accepts that export (restores/updates guests, keeping tickets and codes), any Excel list of names (a “Name” column, “First name” + “Last name” columns, or names in column A), or old .json backups.
+Logging in is name-only (no code), so a guest could open someone else's ticket by tapping their name. If two guests share a name, their ticket numbers are shown so they can pick the right one.
+
+**⬇ Export to Excel** downloads the guest list (.xlsx). **⬆ Import** accepts that export (restores/updates guests, keeping their ticket numbers), any Excel list of names (a “Name” column, “First name” + “Last name” columns, or names in column A), or old .json backups.
 
 ## Admin area
 
@@ -78,7 +80,7 @@ Load-tested locally with 120 simultaneous players: logins, picture downloads at 
 
 ```
 app/
-  my-ticket/  games/  lucky-draw/  ticket/   guest pages
+  my-ticket/  games/  lucky-draw/           guest pages
   desk/                                      registration (behind the scanner icon)
   admin/                                     admin area (behind the snow globe)
   api/                                       API routes (see below)
@@ -102,8 +104,8 @@ lib/
 
 | Route | Who | Purpose |
 | --- | --- | --- |
-| `/api/names?q=` | guests | My Ticket name finder (names only) |
-| `/api/login`, `/api/logout`, `/api/me` | guests | log in with name + access code; own ticket and wins |
+| `/api/names?q=` | guests | My Ticket name finder |
+| `/api/login`, `/api/logout`, `/api/me` | guests | open a ticket by tapping a name; own ticket and wins |
 | `/api/live` (GET) · `/api/stage` | guests | which game is live; Spotlight state |
 | `/api/zoom` · `/api/zoom/me` · `/api/zoom/answer` · `/api/zoom/image` | guests | Guess the Item state, own result, answer, pictures (time-gated) |
 | `/api/sun` · `/api/sun/me` · `/api/sun/entry` | guests | Smallest Unique Number state, own pick, pick a number |

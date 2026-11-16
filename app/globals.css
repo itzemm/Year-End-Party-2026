@@ -2042,3 +2042,10 @@ button.stage-card:hover {
   display: grid;
   gap: 4px;
 }
+.ticket-guest {
+  margin: 8px 0 4px;
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  line-height: 1.2;
+  color: var(--ink);
+}

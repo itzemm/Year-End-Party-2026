@@ -1,9 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import QRCode from "qrcode";
-import TicketCard, { QR_OPTIONS } from "@/components/TicketCard";
-import { addGuest, exportGuestsExcel, importGuestsFile, inviteMessage, removeGuest, resetCode, ticketUrl } from "@/lib/store";
+import TicketCard from "@/components/TicketCard";
+import { addGuest, exportGuestsExcel, importGuestsFile, inviteMessage, removeGuest } from "@/lib/store";
 import { useStore } from "@/lib/useStore";
 
 export default function RegistrationDesk() {
@@ -47,15 +46,6 @@ export default function RegistrationDesk() {
     }
   }
 
-  async function handleResetCode(guest) {
-    if (!confirm(`Issue a new access code for ${guest.name}? Their old code will stop working and they’ll be logged out.`)) return;
-    try {
-      setLatest(await resetCode(guest.id));
-    } catch (err) {
-      setNote(`Couldn’t reset the code: ${err.message}`);
-    }
-  }
-
   async function handleRemove(g) {
     if (!confirm(`Remove ${g.name}’s ticket?`)) return;
     try {
@@ -64,14 +54,6 @@ export default function RegistrationDesk() {
     } catch (err) {
       setNote(`Couldn’t remove ${g.name}: ${err.message}`);
     }
-  }
-
-  async function downloadQr(guest) {
-    const dataUrl = await QRCode.toDataURL(ticketUrl(guest), { ...QR_OPTIONS, width: 1024 });
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = `${guest.ticketNo}-${guest.name.replace(/\s+/g, "_")}.png`;
-    a.click();
   }
 
   async function handleExport() {
@@ -109,8 +91,8 @@ export default function RegistrationDesk() {
         <div className="panel">
           <h2 className="panel-title">🎟️ Register a guest</h2>
           <p className="muted">
-            Type the guest’s first and last name. They get a ticket with a QR code, a lucky draw number and an access code to log in. Guests find
-            themselves on My Ticket as <b>First name Last name</b>.
+            Type the guest’s first and last name. They get a ticket with a lucky draw number, and find it on My Ticket by searching for{" "}
+            <b>First name Last name</b>.
           </p>
           <form className="form" onSubmit={handleSubmit}>
             <div className="row">
@@ -133,27 +115,10 @@ export default function RegistrationDesk() {
         <div className="panel ticket-panel">
           {latest ? (
             <>
-              <TicketCard guest={latest} url={ticketUrl(latest)} />
-              <div className="login-box">
-                <p className="login-box-title">Guest login</p>
-                <p>
-                  <span className="muted">Name</span> {latest.name}
-                </p>
-                <p>
-                  <span className="muted">Access code</span> <strong className="code">{latest.accessCode}</strong>
-                </p>
-                <div className="actions">
-                  <button className="btn small primary" onClick={() => copyInvite(latest)}>
-                    {copied ? "Copied!" : "Copy invite message"}
-                  </button>
-                  <button className="btn small ghost" onClick={() => handleResetCode(latest)}>
-                    New code
-                  </button>
-                </div>
-              </div>
+              <TicketCard guest={latest} />
               <div className="actions">
-                <button className="btn" onClick={() => downloadQr(latest)}>
-                  Download QR
+                <button className="btn small primary" onClick={() => copyInvite(latest)}>
+                  {copied ? "Copied!" : "Copy invite message"}
                 </button>
                 <button className="btn ghost" onClick={() => window.print()}>
                   Print
@@ -201,7 +166,6 @@ export default function RegistrationDesk() {
                 <tr>
                   <th>Ticket</th>
                   <th>Name</th>
-                  <th>Access code</th>
                   <th />
                 </tr>
               </thead>
@@ -210,7 +174,6 @@ export default function RegistrationDesk() {
                   <tr key={g.id}>
                     <td className="mono">{g.ticketNo}</td>
                     <td>{g.name}</td>
-                    <td className="mono">{g.accessCode}</td>
                     <td className="row-actions">
                       <button className="link" onClick={() => setLatest(g)}>
                         View

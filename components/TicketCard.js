@@ -1,27 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import QRCode from "qrcode";
 import { characterFor } from "@/lib/characters";
 
-export const QR_OPTIONS = {
-  margin: 1,
-  width: 360,
-  errorCorrectionLevel: "L",
-  color: { dark: "#0b1d3a", light: "#f7fbff" },
-};
-
-export default function TicketCard({ guest, url, compact = false }) {
-  const [qr, setQr] = useState("");
+// The guest's invitation: name and lucky draw number (no QR code).
+export default function TicketCard({ guest }) {
   const char = characterFor(guest.character);
-
-  useEffect(() => {
-    if (!url) return;
-    QRCode.toDataURL(url, QR_OPTIONS).then(setQr).catch(() => setQr(""));
-  }, [url]);
-
   return (
-    <article className={`ticket ${compact ? "compact" : ""}`}>
+    <article className="ticket">
       <div className="corner tl">
         <b>{char.mark}</b>
         <small>{char.mark}</small>
@@ -36,38 +19,8 @@ export default function TicketCard({ guest, url, compact = false }) {
       <p className="ticket-sub">Year End Party 2026</p>
 
       <div className="ticket-body">
-        {url && (
-          <div className="qr-frame">
-            {qr ? <img src={qr} alt={`QR code for ticket ${guest.ticketNo}`} /> : <div className="qr-loading">Frosting…</div>}
-          </div>
-        )}
-        <dl className="ticket-details">
-          <dt>Guest</dt>
-          <dd className="guest-name">{guest.name}</dd>
-          {guest.team && (
-            <>
-              <dt>Team</dt>
-              <dd>{guest.team}</dd>
-            </>
-          )}
-          {guest.table && (
-            <>
-              <dt>Table</dt>
-              <dd>{guest.table}</dd>
-            </>
-          )}
-          {guest.character && (
-            <>
-              <dt>Arriving as</dt>
-              <dd>
-                {char.emoji} {char.name}
-              </dd>
-            </>
-          )}
-        </dl>
+        <p className="ticket-guest">{guest.name}</p>
       </div>
-
-      {guest.message && <p className="ticket-message">“{guest.message}”</p>}
 
       <div className="ticket-stub">
         <span>Lucky Draw No.</span>
