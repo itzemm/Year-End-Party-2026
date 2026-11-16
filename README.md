@@ -1,6 +1,6 @@
 # Winter Wonderland — Year End Party 2026 ❄️⛄
 
-A party site for ~120 guests: tickets with QR codes, two live phone games, and a lucky-draw wheel. Deploys to Vercel.
+A party site for ~150 guests: name-only tickets, three live phone games (Spotlight, Guess the Item, Smallest Unique Number) and a lucky-draw wheel. Deploys to Vercel.
 
 ## Who sees what
 
@@ -113,5 +113,5 @@ lib/
 | `/api/time` | anyone | server clock for countdowns |
 | `/api/guests…` | registration | registration password only |
 | `/api/winners` (GET) | both | registration or game admin password |
-| `/api/lucky/names` | admin | names for the wheel (no access codes) |
+| `/api/lucky/names` | admin | names for the wheel |
 | `/api/stage/admin`, `/api/zoom/admin`, `/api/sun/admin`, `/api/live` (POST), `/api/lucky/draw`, `/api/winners` (DELETE) | admin | require the `x-admin-passcode` header |
