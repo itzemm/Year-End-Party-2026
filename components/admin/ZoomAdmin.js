@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import ZoomStage from "@/components/games/ZoomStage";
 import Leaderboard from "@/components/games/Leaderboard";
 import JoinQr from "./JoinQr";
+import GameRules from "@/components/games/GameRules";
 import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchAdminImage, fetchZoom, fetchZoomItems, zoomAdmin } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
@@ -141,15 +142,12 @@ function HostPanel({ game, items, onControl, error }) {
       </div>
 
       {(status === "idle" || status === "stopped") && (
-        <div className="host-idle">
-          <JoinQr path="/games?game=zoom" label="Scan to play Guess the Item" />
-          <div>
-            {status === "stopped" && <p className="note">The game was stopped before any picture finished.</p>}
-            <p>
-              {ready
-                ? "All 5 pictures are ready. Ask everyone to open Games → Guess the Item on their phones, then start."
-                : "Add all 5 pictures below before starting."}
-            </p>
+        <div className="host-rules">
+          <GameRules game="zoom" big />
+          <div className="host-rules-side">
+            <JoinQr path="/games" label="Scan to play" />
+            {status === "stopped" && <p className="note screen-hide">The game was stopped before any picture finished.</p>}
+            {!ready && <p className="note screen-hide">Add all 5 pictures below before starting.</p>}
             <button className="btn primary big" onClick={() => onControl("start")} disabled={!ready}>
               Start game
             </button>

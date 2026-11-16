@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import LoginPrompt from "./LoginPrompt";
+import GameRules from "./GameRules";
 import { Confetti } from "@/components/Confetti";
 import { fetchSun, fetchSunMe, submitSun } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
@@ -28,9 +29,9 @@ export default function SunPlayer() {
   if (me && !me.loggedIn) return <LoginPrompt next="/games?game=sun" />;
   if (!round) {
     return (
-      <div className="panel-inner empty">
-        <p className="big-emoji" aria-hidden="true">⛄</p>
-        <p>Waiting for the host to start the round…</p>
+      <div className="panel-inner">
+        <p className="center">Waiting for the host to start the round…</p>
+        <GameRules game="sun" />
       </div>
     );
   }

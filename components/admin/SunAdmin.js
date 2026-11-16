@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ChestGrid, { ChestIcon } from "@/components/games/ChestGrid";
 import JoinQr from "./JoinQr";
+import GameRules from "@/components/games/GameRules";
 import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchSun, sunAdmin } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
@@ -69,19 +70,23 @@ export default function SunAdmin() {
           </div>
         </div>
 
-        {(!round || phase === "open" || phase === "locked" || phase === "stopped") && (
+        {(!round || phase === "stopped") && (
+          <div className="host-rules">
+            <GameRules game="sun" big />
+            <div className="host-rules-side">
+              <JoinQr path="/games" label="Scan to play" />
+              {phase === "stopped" && <p className="note screen-hide">Round {round.id} was stopped.</p>}
+              <button className="btn primary big" onClick={() => act("start")} disabled={busy}>
+                Start 1-minute round
+              </button>
+            </div>
+          </div>
+        )}
+
+        {(phase === "open" || phase === "locked") && (
           <div className="host-idle">
             <JoinQr path="/games" label="Scan to play" />
             <div className="host-status">
-              {(!round || phase === "stopped") && (
-                <>
-                  {phase === "stopped" && <p className="note">Round {round.id} was stopped.</p>}
-                  <p className="host-lead">Everyone gets 1 minute to pick a number from 1 to {SUN_MAX}. The smallest number nobody else picked wins.</p>
-                  <button className="btn primary big" onClick={() => act("start")} disabled={busy}>
-                    Start 1-minute round
-                  </button>
-                </>
-              )}
               {phase === "open" && (
                 <>
                   <p className="eyebrow">Pick a number 1–{SUN_MAX}</p>

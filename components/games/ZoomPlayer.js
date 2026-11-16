@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ZoomStage from "./ZoomStage";
 import Leaderboard, { fmtTime } from "./Leaderboard";
 import LoginPrompt from "./LoginPrompt";
+import GameRules from "./GameRules";
 import { fetchZoom, fetchZoomMe, submitZoomAnswer } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
 import { ZOOM_LOCK_MS, zoomPhase } from "@/lib/rules";
@@ -35,10 +36,9 @@ export default function ZoomPlayer() {
   }
   if (game.status === "idle") {
     return (
-      <div className="panel-inner empty">
-        <p className="big-emoji" aria-hidden="true">🔍</p>
-        <p>Waiting for the host to start Guess the Item…</p>
-        <p className="muted small-print">5 pictures · each one zooms out every 10 seconds · fastest correct answers win</p>
+      <div className="panel-inner">
+        <p className="center">Waiting for the host to start Guess the Item…</p>
+        <GameRules game="zoom" />
       </div>
     );
   }

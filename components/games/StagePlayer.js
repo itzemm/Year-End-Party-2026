@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Confetti } from "@/components/Confetti";
+import GameRules from "./GameRules";
 import { fetchMe, fetchStage } from "@/lib/store";
 import { usePolling } from "@/lib/hooks";
 
@@ -18,9 +19,9 @@ export default function StagePlayer() {
   if (s === undefined) return <p className="muted center">Shaking the snow globe…</p>;
   if (s.status === "idle") {
     return (
-      <div className="panel-inner empty">
-        <p className="big-emoji" aria-hidden="true">🎤</p>
-        <p>Waiting for the host to call the first names up on stage…</p>
+      <div className="panel-inner">
+        <p className="center">Waiting for the host to call the first names up on stage…</p>
+        <GameRules game="stage" />
       </div>
     );
   }

@@ -2049,3 +2049,55 @@ button.stage-card:hover {
   line-height: 1.2;
   color: var(--ink);
 }
+
+/* "How to play" rules */
+.rules-card {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(6, 19, 40, 0.55);
+  text-align: left;
+}
+.rules-title {
+  margin: 0 0 6px;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  color: var(--glow);
+}
+.rules-card ol {
+  margin: 0;
+  padding-left: 1.4em;
+  display: grid;
+  gap: 6px;
+}
+.rules-card li {
+  line-height: 1.35;
+}
+.rules-card.big {
+  padding: 22px 28px;
+}
+.rules-card.big .rules-title {
+  font-size: 1.9rem;
+  margin-bottom: 12px;
+}
+.rules-card.big li {
+  font-size: 1.45rem;
+}
+.host-rules {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  margin-top: 8px;
+}
+.host-rules-side {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+@media (max-width: 760px) {
+  .host-rules {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

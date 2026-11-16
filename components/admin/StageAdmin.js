@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { Confetti } from "@/components/Confetti";
 import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { StageContestants, StageQuestion } from "@/components/games/StagePlayer";
+import GameRules from "@/components/games/GameRules";
+import JoinQr from "./JoinQr";
 import { fetchStageAdmin, stageAdmin } from "@/lib/store";
 import { usePolling } from "@/lib/hooks";
 import { STAGE_PICK } from "@/lib/rules";
@@ -53,15 +55,17 @@ export default function StageAdmin() {
       </div>
 
       {s.status === "idle" ? (
-        <div className="host-play">
-          <p className="big-emoji" aria-hidden="true">🎤</p>
-          <p className="center">
-            Draw {STAGE_PICK} random names to come up on stage. Nobody is called twice — {s.remaining} of {s.remaining + s.pickedCount} guests haven’t been
-            picked yet.
-          </p>
-          <button className="btn primary big" onClick={() => act("draw")} disabled={busy || s.remaining === 0}>
-            🎲 Draw {STAGE_PICK} names
-          </button>
+        <div className="host-rules">
+          <GameRules game="stage" big />
+          <div className="host-rules-side">
+            <JoinQr path="/games" label="Scan to follow along" />
+            <p className="muted small-print screen-hide">
+              {s.remaining} of {s.remaining + s.pickedCount} guests haven’t been picked yet.
+            </p>
+            <button className="btn primary big" onClick={() => act("draw")} disabled={busy || s.remaining === 0}>
+              🎲 Draw {STAGE_PICK} names
+            </button>
+          </div>
         </div>
       ) : (
         <div className="host-play">
