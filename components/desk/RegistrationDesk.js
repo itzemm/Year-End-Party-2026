@@ -8,7 +8,8 @@ import { useStore } from "@/lib/useStore";
 
 export default function RegistrationDesk() {
   const { guests, ready } = useStore();
-  const [name, setName] = useState("");
+  const [first, setFirst] = useState("");
+  const [last, setLast] = useState("");
   const [latest, setLatest] = useState(null);
   const [query, setQuery] = useState("");
   const [note, setNote] = useState("");
@@ -20,12 +21,14 @@ export default function RegistrationDesk() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!name.trim() || saving) return;
+    if (!first.trim() || !last.trim() || saving) return;
     setSaving(true);
     setFormError("");
     try {
-      setLatest(await addGuest({ name }));
-      setName("");
+      // Stored as "First Last" — the way guests search for their name on My Ticket.
+      setLatest(await addGuest({ name: `${first.trim()} ${last.trim()}` }));
+      setFirst("");
+      setLast("");
       nameRef.current?.focus(); // ready for the next guest
     } catch (err) {
       setFormError(err.message);
@@ -105,12 +108,21 @@ export default function RegistrationDesk() {
       <section className="grid-2">
         <div className="panel">
           <h2 className="panel-title">🎟️ Register a guest</h2>
-          <p className="muted">Type the guest’s name. They get a ticket with a QR code, a lucky draw number and an access code to log in.</p>
+          <p className="muted">
+            Type the guest’s first and last name. They get a ticket with a QR code, a lucky draw number and an access code to log in. Guests find
+            themselves on My Ticket as <b>First name Last name</b>.
+          </p>
           <form className="form" onSubmit={handleSubmit}>
-            <label>
-              Guest name
-              <input ref={nameRef} required value={name} onChange={(e) => setName(e.target.value)} placeholder="Holly Winters" maxLength={80} autoFocus />
-            </label>
+            <div className="row">
+              <label>
+                First name
+                <input ref={nameRef} required value={first} onChange={(e) => setFirst(e.target.value)} placeholder="Holly" maxLength={40} autoFocus autoComplete="off" />
+              </label>
+              <label>
+                Last name
+                <input required value={last} onChange={(e) => setLast(e.target.value)} placeholder="Winters" maxLength={40} autoComplete="off" />
+              </label>
+            </div>
             {formError && <p className="note error-text">{formError}</p>}
             <button className="btn primary" type="submit" disabled={saving}>
               {saving ? "Creating ticket…" : "Create ticket"}
@@ -190,7 +202,6 @@ export default function RegistrationDesk() {
                   <th>Ticket</th>
                   <th>Name</th>
                   <th>Access code</th>
-                  <th>Checked in</th>
                   <th />
                 </tr>
               </thead>
@@ -200,7 +211,6 @@ export default function RegistrationDesk() {
                     <td className="mono">{g.ticketNo}</td>
                     <td>{g.name}</td>
                     <td className="mono">{g.accessCode}</td>
-                    <td>{g.checkedInAt ? <span className="in-pill">✓ {new Date(g.checkedInAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span> : <span className="muted">—</span>}</td>
                     <td className="row-actions">
                       <button className="link" onClick={() => setLatest(g)}>
                         View

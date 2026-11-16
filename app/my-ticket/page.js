@@ -33,7 +33,13 @@ export default function MyTicketPage() {
   }, [load]);
 
   if (me === undefined) return <p className="muted center">Shaking the snow globe…</p>;
-  if (!me) return <LoginForm onLoggedIn={load} initialError={error} />;
+  if (!me)
+    return (
+      <div className="stack">
+        <HelpButton />
+        <LoginForm onLoggedIn={load} initialError={error} />
+      </div>
+    );
 
   const { guest, wins } = me;
 
@@ -47,6 +53,7 @@ export default function MyTicketPage() {
 
   return (
     <div className="ticket-page">
+      <HelpButton />
       <p className="welcome">
         Welcome back, <b>{guest.name}</b>. Here is your invitation to the Winter Ball.
       </p>
@@ -56,9 +63,7 @@ export default function MyTicketPage() {
           <span aria-hidden="true">🏆</span>
           <div>
             <b>Snowflakes smile upon you!</b>
-            {wins.map((w) => (
-              <p key={w.drawnAt}>You won {w.prize} in the lucky draw.</p>
-            ))}
+            <p>You won the lucky draw — come and collect your prize!</p>
           </div>
         </div>
       )}
@@ -84,14 +89,52 @@ export default function MyTicketPage() {
   );
 }
 
+const HELP_TEXT = "If you are unable to find your name, find Patricia Yeo or go to the registration booth for assistance.";
+
+// Round "?" button that shows who to ask for help.
+function HelpButton() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="help-wrap">
+      <button type="button" className="help-btn" aria-label="Help" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        ?
+      </button>
+      {open && (
+        <p className="help-bubble" role="note">
+          {HELP_TEXT}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function LoginForm({ onLoggedIn, initialError }) {
-  const [identifier, setIdentifier] = useState("");
+  const [query, setQuery] = useState("");
+  const [chosen, setChosen] = useState("");
+  const [names, setNames] = useState(null); // null = not searched yet
   const [code, setCode] = useState("");
   const [error, setError] = useState(initialError || "");
   const [busy, setBusy] = useState(false);
 
+  // Suggest matching names as the guest types (after 2 letters).
+  useEffect(() => {
+    if (chosen || query.trim().replace(/\s/g, "").length < 2) {
+      setNames(null);
+      return;
+    }
+    const t = setTimeout(() => {
+      fetch(`/api/names?q=${encodeURIComponent(query.trim())}`)
+        .then((r) => r.json())
+        .then((d) => setNames(d.names || []))
+        .catch(() => setNames([]));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [query, chosen]);
+
   async function submit(e) {
     e.preventDefault();
+    const identifier = chosen || query;
+    if (!identifier.trim()) return setError("Find your name first");
     setBusy(true);
     setError("");
     try {
@@ -114,26 +157,47 @@ function LoginForm({ onLoggedIn, initialError }) {
     <section className="panel login-panel">
       <p className="big-emoji" aria-hidden="true">🗝️</p>
       <h2 className="panel-title">Find your ticket</h2>
-      <p className="muted">Log in with your name (or ticket number) and the access code from your invitation.</p>
+      <p className="muted">Find your name, then enter the access code from your invitation.</p>
       <form className="form" onSubmit={submit}>
         <label>
-          Your name or ticket number
-          <input
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            placeholder="Holly Winters"
-            autoComplete="username"
-            autoCapitalize="none"
-            required
-          />
+          Your name <small className="muted">(first name, then last name)</small>
+          {chosen ? (
+            <span className="chosen-name">
+              <b>{chosen}</b>
+              <button type="button" className="link" onClick={() => (setChosen(""), setQuery(""))}>
+                Not you?
+              </button>
+            </span>
+          ) : (
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="e.g. Holly Winters"
+              autoComplete="off"
+              autoCapitalize="words"
+              autoFocus
+            />
+          )}
         </label>
+        {!chosen && names && (
+          <ul className="name-results" role="listbox" aria-label="Matching names">
+            {names.map((n) => (
+              <li key={n}>
+                <button type="button" onClick={() => (setChosen(n), setNames(null))}>
+                  {n}
+                </button>
+              </li>
+            ))}
+            {names.length === 0 && <li className="muted name-none">No name found. {HELP_TEXT}</li>}
+          </ul>
+        )}
         <label>
           Access code
           <input
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder="e.g. K7MPQ2"
-            autoComplete="current-password"
+            autoComplete="one-time-code"
             autoCapitalize="characters"
             className="code-input"
             required
@@ -144,7 +208,7 @@ function LoginForm({ onLoggedIn, initialError }) {
           {busy ? "Turning the key…" : "Open my ticket"}
         </button>
       </form>
-      <p className="muted small-print">Lost your code? Ask the organisers — they can look it up or issue a new one.</p>
+      <p className="muted small-print">Lost your code? Ask at the registration booth — they can look it up or issue a new one.</p>
     </section>
   );
 }

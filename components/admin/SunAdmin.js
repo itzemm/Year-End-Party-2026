@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import ChestGrid from "@/components/games/ChestGrid";
+import { useState } from "react";
+import ChestGrid, { ChestIcon } from "@/components/games/ChestGrid";
 import JoinQr from "./JoinQr";
+import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchSun, sunAdmin } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
-import { SUN_MAX, SUN_PAGES } from "@/lib/rules";
+import { SUN_MAX } from "@/lib/rules";
 
 const mmss = (ms) => {
   const s = Math.max(0, Math.ceil(ms / 1000));
@@ -16,7 +17,8 @@ export default function SunAdmin() {
   const { data, refresh, setData } = usePolling(fetchSun, (d) => (d?.round && d.round.phase !== "locked" ? 1500 : 4000));
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const stageRef = useRef(null);
+  const [popup, setPopup] = useState(null); // chest number being shown
+  const big = useBigScreen();
   const round = data?.round;
   const now = useServerNow(250, round?.phase === "open" || round?.phase === "locked");
   const phase = round ? (round.phase === "open" && now >= round.endsAt ? "locked" : round.phase) : null;
@@ -36,120 +38,112 @@ export default function SunAdmin() {
     }
   }
 
-  const page = round?.page ?? 0;
-  const opened = round?.opened || {};
-  const nextChest = phase === "revealing" ? SUN_PAGES[page].find((n) => !(n in opened)) : undefined;
-  const st = round?.standings;
-  const pageDone = nextChest === undefined;
-
-  // Space / → opens the next chest (presenter clicker friendly).
-  const openRef = useRef(null);
-  openRef.current = phase === "revealing" && nextChest !== undefined && !busy ? () => act("open", { n: nextChest }) : null;
-  useEffect(() => {
-    const onKey = (e) => {
-      if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
-      if ((e.key === " " || e.key === "ArrowRight") && openRef.current) {
-        e.preventDefault();
-        openRef.current();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  // Click a lit chest: it opens (fast) and its names pop up. Click outside to close.
+  async function open(n) {
+    setPopup(n);
+    if (!(n in (round.opened || {}))) await act("open", { n });
+  }
 
   if (data === undefined) return <section className="panel">Loading…</section>;
+  const opened = round?.opened || {};
+  const st = round?.standings;
+  const popupNames = popup != null ? opened[popup] : undefined;
 
   return (
-    <section className="panel host-screen" ref={stageRef}>
-      <div className="panel-head">
-        <h2 className="panel-title">🔢 Smallest Unique Number — host</h2>
-        <div className="actions">
-          <button className="btn small ghost" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen?.())}>
-            ⛶ Big screen
-          </button>
-          {round && phase !== "stopped" && (
-            <button className="btn small danger-btn" onClick={() => act("stop")} disabled={busy}>
-              ■ Stop round
-            </button>
-          )}
-          {round && phase !== "open" && phase !== "stopped" && (
-            <button className="btn small ghost" onClick={() => act("start")} disabled={busy}>
-              New round
-            </button>
-          )}
+    <section className="panel host-screen" ref={big.outerRef}>
+      <div {...big.innerProps}>
+        <div className="panel-head">
+          <h2 className="panel-title">🔢 Smallest Unique Number</h2>
+          <div className="actions">
+            <BigScreenButton big={big} />
+            {round && phase !== "stopped" && (
+              <button className="btn small danger-btn screen-hide" onClick={() => act("stop")} disabled={busy}>
+                ■ Stop round
+              </button>
+            )}
+            {round && phase !== "open" && phase !== "stopped" && (
+              <button className="btn small ghost screen-hide" onClick={() => act("start")} disabled={busy}>
+                New round
+              </button>
+            )}
+          </div>
         </div>
+
+        {(!round || phase === "open" || phase === "locked" || phase === "stopped") && (
+          <div className="host-idle">
+            <JoinQr path="/games" label="Scan to play" />
+            <div className="host-status">
+              {(!round || phase === "stopped") && (
+                <>
+                  {phase === "stopped" && <p className="note">Round {round.id} was stopped.</p>}
+                  <p className="host-lead">Everyone gets 1 minute to pick a number from 1 to {SUN_MAX}. The smallest number nobody else picked wins.</p>
+                  <button className="btn primary big" onClick={() => act("start")} disabled={busy}>
+                    Start 1-minute round
+                  </button>
+                </>
+              )}
+              {phase === "open" && (
+                <>
+                  <p className="eyebrow">Pick a number 1–{SUN_MAX}</p>
+                  <p className={`host-count ${round.endsAt - now < 10000 ? "urgent" : ""}`}>{mmss(round.endsAt - now)}</p>
+                  <p className="host-lead">{round.entryCount} guests have locked in</p>
+                  <button className="btn small ghost screen-hide" onClick={() => act("endNow")} disabled={busy}>
+                    Everyone’s in — lock numbers now
+                  </button>
+                </>
+              )}
+              {phase === "locked" && (
+                <>
+                  <p className="host-count">Time’s up!</p>
+                  <p className="host-lead">{round.entryCount ?? "…"} guests picked a number</p>
+                  <button className="btn primary big" onClick={() => act("reveal")} disabled={busy || now < round.endsAt + 1200}>
+                    Light up the chests
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {phase === "revealing" && (
+          <div className="host-play">
+            <SunBanner standings={st} />
+            <ChestGrid picked={round.picked} opened={opened} onOpen={open} current={st?.current} winner={st?.winner} />
+            <p className="muted center screen-hide">
+              {round.total} guests played · {round.picked.length} numbers were picked (lit chests) · click a chest to open it
+            </p>
+          </div>
+        )}
+        {error && <p className="note error-text center">{error}</p>}
       </div>
 
-      {(!round || phase === "open" || phase === "locked" || phase === "stopped") && (
-        <div className="host-idle">
-          <JoinQr path="/games?game=sun" label="Scan to play" />
-          <div className="host-status">
-            {(!round || phase === "stopped") && (
+      {popup != null && (
+        <div className="chest-popup-backdrop" onClick={() => setPopup(null)}>
+          <div className="chest-popup" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={`Chest ${popup}`}>
+            <div className="chest-popup-lid">
+              <ChestIcon open />
+            </div>
+            <p className="chest-popup-n">{popup}</p>
+            {popupNames === undefined ? (
+              <p className="muted">Opening…</p>
+            ) : (
               <>
-                {phase === "stopped" && <p className="note">Round {round.id} was stopped.</p>}
-                <p>Everyone gets 2 minutes to pick a number from 1 to {SUN_MAX}. The smallest number nobody else picked wins.</p>
-                <button className="btn primary big" onClick={() => act("start")} disabled={busy}>
-                  Start 2-minute round
-                </button>
+                <p className="chest-popup-count">
+                  {popupNames.length === 1 ? "Only one person picked this!" : `${popupNames.length} people picked this`}
+                </p>
+                <ul className={`chest-popup-names ${popupNames.length === 1 ? "unique" : ""}`}>
+                  {popupNames.map((name, i) => (
+                    <li key={i} style={{ animationDelay: `${0.08 + i * 0.04}s` }}>
+                      {name}
+                    </li>
+                  ))}
+                </ul>
               </>
             )}
-            {phase === "open" && (
-              <>
-                <p className="eyebrow">Round {round.id} · pick a number 1–{SUN_MAX}</p>
-                <p className="host-count">{mmss(round.endsAt - now)}</p>
-                <p className="muted">{round.entryCount} guests have picked</p>
-              </>
-            )}
-            {phase === "locked" && (
-              <>
-                <p className="eyebrow">Round {round.id}</p>
-                <p className="host-count">Time’s up!</p>
-                <p className="muted">{round.entryCount ?? "…"} guests picked a number</p>
-                <button className="btn primary big" onClick={() => act("reveal")} disabled={busy || now < round.endsAt + 1200}>
-                  Start opening chests
-                </button>
-              </>
-            )}
+            <p className="muted small-print">Click outside to go back to the chests</p>
           </div>
         </div>
       )}
-
-      {phase === "revealing" && (
-        <div className="host-play">
-          <SunBanner standings={st} />
-          <div className="subtabs">
-            {SUN_PAGES.map((nums, i) => (
-              <button key={i} className={`subtab ${page === i ? "active" : ""}`} onClick={() => act("page", { page: i })} disabled={busy || page === i}>
-                Chests {nums[0]} → {nums[nums.length - 1]}
-              </button>
-            ))}
-          </div>
-          <ChestGrid
-            numbers={SUN_PAGES[page]}
-            opened={opened}
-            nextChest={nextChest}
-            onOpen={(n) => act("open", { n })}
-            current={st?.current}
-            winner={st?.winner}
-          />
-          <div className="actions">
-            {!pageDone && (
-              <button className="btn primary" onClick={() => act("open", { n: nextChest })} disabled={busy}>
-                Open chest {nextChest}
-              </button>
-            )}
-            {pageDone && page === 0 && !st?.winner && (
-              <button className="btn primary big" onClick={() => act("page", { page: 1 })} disabled={busy}>
-                No unique number in 1–50 · Next page: 51 → 100 →
-              </button>
-            )}
-          </div>
-          <p className="muted small-print center">
-            {round.total} guests played · Space or → opens the next chest
-          </p>
-        </div>
-      )}
-      {error && <p className="note error-text center">{error}</p>}
     </section>
   );
 }

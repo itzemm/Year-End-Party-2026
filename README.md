@@ -6,76 +6,47 @@ A party site for ~120 guests: tickets with QR codes, two live phone games, and a
 
 | Page | Who | What it does |
 | --- | --- | --- |
-| **My Ticket** (`/my-ticket`, the home page) | Guests | Log in with **name (or ticket number) + access code**. Shows their ticket, QR code and any lucky-draw wins. |
-| **Games** (`/games`) | Guests | Shows **only the game the host has put live** (Guess the Item, Smallest Unique Number, Broken Telephone or Spotlight), and switches automatically. Playing needs a login. |
-| **Lucky Draw** (`/lucky-draw`) | Guests | Shows the prize being drawn for and who won. |
-| **Front desk** (`/desk`, the scanner icon, top left) | Desk staff (front desk password) | **Check-in** (scan ticket QR codes or check in by name) and **Registration**. |
-| **Admin** (`/admin`, the snow globe, top right) | Admins (admin password) | Running the games on the big screen, prizes and the lucky draw wheel. |
+| **My Ticket** (`/my-ticket`, the home page) | Guests | Guests **find their name** (first name, then last name), enter their **access code**, and see their ticket, QR code and any lucky draw win. The round **?** button explains who to ask for help. |
+| **Games** (`/games`) | Guests | Shows **only the game the host has put live**, and switches automatically. Playing needs a login. |
+| **Lucky Draw** (`/lucky-draw`) | Guests | Shows the winner when the wheel stops. |
+| **Registration** (`/desk`, the scanner icon, top left) | Registration staff (`registration123`) | Register guests, look up access codes, export/import the guest list. |
+| **Admin** (`/admin`, the snow globe, top right) | Admins (admin password) | Running the games on the big screen and the lucky draw wheel. |
 
-## Front desk (check-in & registration)
+## Registration (front desk)
 
-Click the scanner icon in the top-left corner and enter the front desk password (`REGISTRATION_PASSCODE`; the admin password works too). Give desk staff this password: it does **not** open the admin area.
+Click the scanner icon in the top-left corner and enter the registration password: **`registration123`** (set `REGISTRATION_PASSCODE` in Vercel to change it). The admin password also works. The registration password does **not** open the admin area.
 
-### Check-in
-- **📷 Start scanning** uses the phone or laptop camera (allow camera access when asked). Point it at a guest's ticket QR code, on their phone or printed. You get a beep and a big ✅ *Checked in*, ⚠️ *Already checked in at 19:02*, or ❌ *not a valid ticket / not registered*. Several phones can scan at the same time.
-- **Manual check-in:** search by name or ticket number and press **Check in**. **Undo** fixes a mistake.
-- Counters show how many are checked in, still to arrive and registered.
-- **Only checked-in guests are on the lucky draw wheel and can win.**
+Type the guest's **first name** and **last name** → **Create ticket**. The name is saved as “First Last”, which is how guests find themselves on My Ticket. Each guest gets a ticket with a QR code, a lucky draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code.
 
-### Registration
-Type a guest's name → **Create ticket**. Each guest gets a ticket with a QR code, a lucky-draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code and logs out the old one. **⬇ Export to Excel** downloads the guest list as an .xlsx file (ticket number, name, access code, registration time, check-in time, any lucky-draw prize). **⬆ Import** accepts:
-- that Excel export: restores or updates guests, keeping their ticket numbers and access codes (no duplicates). The last column, *System ID*, is how guests are matched, so don't edit it;
-- any Excel list of names (a column called “Name”, or just names in column A): each name is registered as a new guest;
-- old .json backups from earlier versions.
+**⬇ Export to Excel** downloads the guest list (.xlsx). **⬆ Import** accepts that export (restores/updates guests, keeping tickets and codes), any Excel list of names (a “Name” column, “First name” + “Last name” columns, or names in column A), or old .json backups.
 
 ## Admin area
 
-Click the snow globe in the top-right corner and enter the admin password (`ADMIN_PASSCODE`). The browser remembers it until you click **Log out**.
+Click the snow globe in the top-right corner and enter the admin password (`ADMIN_PASSCODE`). The games run in this order: **Spotlight → Guess the Item → Smallest Unique Number**, then the **Lucky Draw**.
+
+**⛶ Big screen** (on every game and the lucky draw) goes full screen and scales the whole view up to fill about 90% of the projector, so all text is very large. Admin-only controls are hidden on the big screen, and keyboard shortcuts keep working.
 
 ### What guests see (the live switch)
-At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Guess the Item / Smallest Unique Number / Broken Telephone / Spotlight**. Guests' phones switch within a few seconds. Starting a game (Start game, Start round, Draw names) switches it live automatically.
+At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Spotlight / Guess the Item / Smallest Unique Number**. Starting a game switches it live automatically.
 
-### Guess the Item (5 rounds)
-1. Upload 5 pictures and type each answer. Add other accepted answers with commas (“mug, coffee cup”). Small typos, plurals and “a/the” are accepted automatically. Click a picture to choose where the close-up starts.
-2. Put the admin page on the projector (**Big screen**), ask guests to open Games → Guess the Item, then click **Start game**.
-3. Each round: the picture starts zoomed in and **zooms out every 10 seconds, 3 times**. After it's fully zoomed out, guests get **15 more seconds**. Then answers lock and the answer is revealed. Guests can change their answer until then. Their time counts from their last answer.
-4. Click **Show leaderboard →**, then **Next picture →** (or press → / N, or use a presenter clicker). After picture 5 it shows the **final leaderboard**.
+### 1. Spotlight (on stage)
+1. **🎲 Draw 5 names**: 5 random guests are called up on stage, and their phones say “You're on stage!”. **Nobody is drawn twice** (until *Start over*). **↻ not here** swaps someone out.
+2. **🎲 Reveal a random question** (short and quick to judge, e.g. “Who has the longest hair?”), **Different question**, or type your own.
+3. Tap the winner(s) and **🏆 Confirm**. **Next round** draws 5 new names.
 
-**■ Stop game** ends it straight away: everyone sees the final leaderboard for the pictures already revealed (the picture in progress doesn't count and its answer stays hidden). **Reset game** clears everything back to the start.
+### 2. Guess the Item (5 rounds)
+1. Upload 5 pictures and type each answer (add other accepted answers with commas). Click a picture to choose where the close-up starts, then **Save** each round.
+2. **Start game**. Each picture **zooms out every 10 seconds, 3 times**, then stays fully zoomed out for **15 more seconds**. Then answers lock and the answer is revealed.
+3. **Show top 3 →** shows the leaderboard (🥇🥈🥉), then **Next picture →**. After picture 5 it shows **the 3 winners**: most correct answers, then fastest total time.
 
-**Ranking:** most correct answers, then the lowest total time on those correct answers. Phones only ever receive the zoom levels the timer has reached, so nobody can peek at the full picture early.
+### 3. Smallest Unique Number
+1. **Start 1-minute round**. Guests pick a number from **1 to 100** on their phones. When the minute is up (or you press *Everyone's in — lock numbers now*), numbers lock.
+2. **Light up the chests**: the 10×10 grid of chests lights up **only the numbers somebody picked**.
+3. **Click any lit chest**: it pops open instantly and shows the names of everyone who picked that number. **Click outside** the pop-up to go back to the chests. The banner always shows the current smallest unique number and announces the winner once it's certain.
+4. Guests' phones show **only their own number** and how it's doing (“2 others picked 12 too”, “You won!”).
 
-### Smallest Unique Number
-1. Click **Start 2-minute round**. Guests pick a number from **1 to 100** on their phones and can change it until the timer ends. Then phones lock.
-2. Click **Start opening chests**. Chests are opened **50 → 1** (click the glowing chest, or press Space / →). Each one shows who picked that number. The banner always shows the **current smallest unique number**.
-3. **■ Stop round** cancels the round at any point (while the timer runs or during the reveal). Picks lock and no winner is declared. Start a new round when ready.
-4. If someone in 1–50 picked a number nobody else did, the smallest one wins. Otherwise click **Next page** and open **51 → 100**. Guests' phones follow along live.
-
-### Broken Telephone (3 teams of 5)
-1. **🎲 Generate teams**: 3 random teams of 5 from the registered guests, shown as a table. Each team's current player is highlighted. **↻** swaps someone (e.g. not here) for another random guest who isn't on a team.
-2. Set the **secret sentence**: type one or press **🎲 Random**. It stays hidden on the big screen unless you click Show.
-3. **Start game**. Team players open Games → Broken Telephone on their phones (logged in).
-4. Press **▶ Start timer** for each turn (all 3 teams play at the same time):
-   - Player 1 sees the sentence and **draws it**: 1 minute.
-   - Players 2–4 see the previous drawing and **copy it**: 30 seconds each.
-   - Player 5 sees the last drawing and **writes what they think it is**: 30 seconds.
-
-   When time's up, whatever is on the phone is sent automatically and the highlight jumps to the next player. If someone doesn't draw, the next person gets the drawing before them.
-5. **Reveal every team's drawings & answers**, then **Reveal the secret sentence**. Everyone's phone shows the reveal too. **Stop game** ends it at any time (teams and sentence are kept).
-
-Nobody can see the sentence or anyone's drawing except the player whose turn it is, until the reveal.
-
-**Audience:** every logged-in guest who isn't on a team can play along on their phone. They see each team's drawings as each turn finishes (team players never see them), and they can guess the sentence and change their guess until the teams' answers are revealed. When the sentence is revealed, the 5 closest audience guesses are shown, along with each team's final answer, with a % match. The % is the share of the sentence's key words (typos and plurals forgiven); ties go to whoever guessed earliest.
-
-### Spotlight (on stage)
-1. **🎲 Draw 5 names**: 5 random guests are called up on stage, and their phones say “You're on stage!”. **Nobody is ever drawn twice** (until you press *Start over* under Previous rounds). **↻ not here** swaps someone for another random guest.
-2. **🎲 Reveal a random question** (e.g. “Who has the longest hair?”), **Different question**, or type your own.
-3. Tap the winner(s) and **🏆 Confirm**. Everyone sees the winners. **Next round** draws 5 new names.
-
-### Lucky Draw
-1. Add prizes with a name and photo.
-2. Click **Draw this** on a prize: every guest's Lucky Draw page now shows that prize.
-3. Click **Spin the wheel!** The wheel spins through every eligible guest (checked in, and not a previous winner) and lands on the winner. Guests' phones reveal the winner when the wheel stops. Previous winners sit out unless you tick “Let previous winners win again”. Drawing a prize again (e.g. the winner wasn't there) replaces its winner.
+### 4. Lucky Draw
+A wheel of **every registered guest's name**, each as large as its slice allows. **Spin the wheel!** It lands on the winner, who appears on the big screen and on everyone's Lucky Draw page. Previous winners sit out unless you tick “Let previous winners win again”. The winners list is below the wheel.
 
 ## Deploy to Vercel
 
@@ -83,7 +54,7 @@ Nobody can see the sentence or anyone's drawing except the player whose turn it 
 2. **Storage → Create Database → Upstash → Redis** (free plan) and connect it to the project. **Required**: without it nothing is saved.
 3. **Settings → Environment Variables**:
    - `ADMIN_PASSCODE`: the admin password for the games and the lucky draw (**required**). Use something long.
-   - `REGISTRATION_PASSCODE`: the front desk password for check-in and registration (give this to desk staff). If not set, the admin password is used.
+   - `REGISTRATION_PASSCODE` *(optional)*: the registration password. Defaults to `registration123`.
    - `SESSION_SECRET`: a long random string (e.g. `openssl rand -hex 32`). Signs guest logins.
 4. **Deployments → ⋯ → Redeploy** so the settings take effect.
 
@@ -108,18 +79,19 @@ Load-tested locally with 120 simultaneous players: logins, picture downloads at 
 ```
 app/
   my-ticket/  games/  lucky-draw/  ticket/   guest pages
+  desk/                                      registration (behind the scanner icon)
   admin/                                     admin area (behind the snow globe)
   api/                                       API routes (see below)
 components/
-  admin/      AdminApp, LiveSwitch, RegistrationAdmin, ZoomAdmin, SunAdmin, TelAdmin, StageAdmin, LuckyAdmin, PrizeWheel, JoinQr
-  games/      ZoomPlayer, ZoomStage, Leaderboard, SunPlayer, ChestGrid, TelPlayer, TelTeams, TelReveal, DrawingPad, StagePlayer, LoginPrompt
+  desk/       DeskApp, RegistrationDesk
+  admin/      AdminApp, LiveSwitch, StageAdmin, ZoomAdmin, SunAdmin, LuckyAdmin, PrizeWheel, JoinQr, useBigScreen
+  games/      StagePlayer, ZoomPlayer, ZoomStage, Leaderboard, SunPlayer, ChestGrid, LoginPrompt
 lib/
   kv.js         storage (Upstash Redis, or in-memory for local dev)
-  db.js         guests, logins, prizes, lucky draw
+  db.js         guests, logins, name finder, lucky draw
+  stageGame.js  Spotlight server logic
   zoomGame.js   Guess the Item server logic
   sunGame.js    Smallest Unique Number server logic
-  telGame.js    Broken Telephone server logic
-  stageGame.js  Spotlight server logic
   live.js       which game guests see
   rules.js      shared timings, answer matching and scoring
   imageTools.js resizing and zoom-level cropping (in the admin's browser)
@@ -130,12 +102,12 @@ lib/
 
 | Route | Who | Purpose |
 | --- | --- | --- |
-| `/api/login`, `/api/logout`, `/api/me` | guests | log in with name/ticket + code; own ticket and wins |
+| `/api/names?q=` | guests | My Ticket name finder (names only) |
+| `/api/login`, `/api/logout`, `/api/me` | guests | log in with name + access code; own ticket and wins |
+| `/api/live` (GET) · `/api/stage` | guests | which game is live; Spotlight state |
 | `/api/zoom` · `/api/zoom/me` · `/api/zoom/answer` · `/api/zoom/image` | guests | Guess the Item state, own result, answer, pictures (time-gated) |
 | `/api/sun` · `/api/sun/me` · `/api/sun/entry` | guests | Smallest Unique Number state, own pick, pick a number |
-| `/api/tel` · `/api/tel/me` · `/api/tel/submit` · `/api/tel/image` | guests | Broken Telephone state, own turn (sentence or previous drawing), send drawing/guess, revealed drawings |
-| `/api/live` (GET) · `/api/stage` | guests | which game is live; Spotlight state |
-| `/api/lucky` (GET) | guests | current prize and revealed winner |
+| `/api/lucky` (GET) | guests | the revealed lucky draw winner |
 | `/api/time` | anyone | server clock for countdowns |
-| `/api/guests…`, `/api/checkin` | front desk | registration and check-in (front desk or admin password) |
-| `/api/zoom/admin`, `/api/sun/admin`, `/api/tel/admin`, `/api/stage/admin`, `/api/live` (POST), `/api/prizes…`, `/api/lucky` (POST), `/api/lucky/draw`, `/api/winners` | admin | require the `x-admin-passcode` header |
+| `/api/guests…`, `/api/winners` (GET) | registration | registration password (or admin password) |
+| `/api/stage/admin`, `/api/zoom/admin`, `/api/sun/admin`, `/api/live` (POST), `/api/lucky/draw`, `/api/winners` (DELETE) | admin | require the `x-admin-passcode` header |

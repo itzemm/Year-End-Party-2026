@@ -50,7 +50,7 @@ export default function ZoomPlayer() {
     const played = game.stoppedEarly ? game.round + 1 : game.rounds;
     return (
       <div className="panel-inner">
-        <h3 className="sun-heading">{final ? "🏆 Final leaderboard" : `Leaderboard after picture ${game.round + 1}`}</h3>
+        <h3 className="sun-heading">{final ? "🏆 The winners" : `Top 3 after picture ${game.round + 1}`}</h3>
         {game.stoppedEarly && <p className="muted center small-print">The host ended the game after picture {game.round + 1}.</p>}
         <Leaderboard rows={game.leaderboard} rounds={played} final={final} meTicket={me?.standing?.ticketNo} />
         <MyStanding standing={me?.standing} rounds={played} players={game.players} />

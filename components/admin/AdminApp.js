@@ -5,23 +5,21 @@ import { PasscodeGate } from "@/components/AdminGate";
 import ZoomAdmin from "./ZoomAdmin";
 import SunAdmin from "./SunAdmin";
 import LuckyAdmin from "./LuckyAdmin";
-import TelAdmin from "./TelAdmin";
 import StageAdmin from "./StageAdmin";
 import LiveSwitch from "./LiveSwitch";
 import { clearPasscode } from "@/lib/store";
 import { useAdminStatus } from "@/lib/hooks";
 
 const SECTIONS = [
+  { id: "stage", label: "Spotlight", icon: "🎤", Component: StageAdmin },
   { id: "zoom", label: "Guess the Item", icon: "🔍", Component: ZoomAdmin },
   { id: "sun", label: "Smallest Unique Number", icon: "🔢", Component: SunAdmin },
-  { id: "tel", label: "Broken Telephone", icon: "📞", Component: TelAdmin },
-  { id: "stage", label: "Spotlight", icon: "🎤", Component: StageAdmin },
   { id: "lucky", label: "Lucky Draw", icon: "🎁", Component: LuckyAdmin },
 ];
 
 export default function AdminApp() {
   const status = useAdminStatus();
-  const [active, setActive] = useState("zoom");
+  const [active, setActive] = useState("stage");
 
   useEffect(() => {
     const wanted = new URLSearchParams(window.location.search).get("section");

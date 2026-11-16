@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ChestGrid from "./ChestGrid";
 import LoginPrompt from "./LoginPrompt";
-import { SunBanner } from "@/components/admin/SunAdmin";
+import { Confetti } from "@/components/Confetti";
 import { fetchSun, fetchSunMe, submitSun } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
-import { SUN_MAX, SUN_PAGES } from "@/lib/rules";
+import { SUN_MAX } from "@/lib/rules";
 
 const mmss = (ms) => {
   const s = Math.max(0, Math.ceil(ms / 1000));
@@ -88,37 +87,36 @@ export default function SunPlayer() {
     );
   }
 
-  // Revealing: follow along with the chests the host opens.
+  // Revealing: guests only see their own number and how it's doing.
   const opened = round.opened || {};
   const st = round.standings;
   const myN = myEntry?.n;
   const mine = myN != null ? opened[myN] : undefined;
-  let outcome = null;
-  if (myN != null) {
-    if (st?.winner?.n === myN) outcome = "🎉 You won — yours was the smallest unique number!";
-    else if (mine === undefined) outcome = `Your chest (${myN}) hasn’t been opened yet…`;
-    else if (mine.length > 1) outcome = `Chest ${myN} is open: ${mine.length - 1} other guest${mine.length === 2 ? "" : "s"} also picked it.`;
-    else if (st?.current?.n === myN) outcome = `Chest ${myN} is open and you’re the only one in it — you’re in the lead!`;
-    else outcome = `Chest ${myN} is open and you’re the only one in it — but ${st?.current?.n} is smaller.`;
-  }
+  const iWon = myN != null && st?.winner?.n === myN;
+  let outcome;
+  if (myN == null) outcome = "You didn’t pick a number this round — enjoy the show!";
+  else if (iWon) outcome = "🎉 You won — nobody else picked your number, and it’s the smallest!";
+  else if (mine === undefined) outcome = "Your chest hasn’t been opened yet…";
+  else if (mine.length > 1) outcome = `${mine.length - 1} other guest${mine.length === 2 ? "" : "s"} picked ${myN} too.`;
+  else if (st?.winner) outcome = `Nobody else picked ${myN} — but ${st.winner.n} was smaller.`;
+  else outcome = `Nobody else picked ${myN}! Waiting to see if a smaller number is unique…`;
+
   return (
-    <div className="panel-inner">
-      <SunBanner standings={st} big={false} />
-      {myN != null ? (
-        <p className={`my-outcome ${st?.winner?.n === myN ? "won" : ""}`}>
-          Your number: <b>{myN}</b>. {outcome}
-        </p>
-      ) : (
-        <p className="my-outcome">You didn’t play this round — enjoy the show!</p>
+    <div className={`panel-inner sun-mine ${iWon ? "won" : ""}`}>
+      {iWon && <Confetti />}
+      {myN != null && (
+        <>
+          <p className="muted">Your number</p>
+          <p className="sun-mine-n">{myN}</p>
+        </>
       )}
-      {SUN_PAGES.map((nums, i) => (
-        <div key={i} className="mini-page">
-          <p className="muted small-print">
-            Chests {nums[0]} → {nums[nums.length - 1]}
-          </p>
-          <ChestGrid numbers={nums} opened={opened} current={st?.current} winner={st?.winner} myN={myN} compact />
-        </div>
-      ))}
+      <p className={`my-outcome ${iWon ? "won" : ""}`}>{outcome}</p>
+      {st?.winner && !iWon && (
+        <p className="muted center">
+          Winner: <b>{st.winner.name}</b> with {st.winner.n}
+        </p>
+      )}
+      {st?.noWinner && <p className="muted center">No unique number this round — nobody wins!</p>}
     </div>
   );
 }

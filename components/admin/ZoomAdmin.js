@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import ZoomStage from "@/components/games/ZoomStage";
 import Leaderboard from "@/components/games/Leaderboard";
 import JoinQr from "./JoinQr";
+import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchAdminImage, fetchZoom, fetchZoomItems, zoomAdmin } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
 import { cropRect, fileToImage, makeZoomLevels, suggestFocus } from "@/lib/imageTools";
@@ -92,7 +93,7 @@ export default function ZoomAdmin() {
 }
 
 function HostPanel({ game, items, onControl, error }) {
-  const stageRef = useRef(null);
+  const big = useBigScreen();
   const playing = game?.status === "playing";
   const now = useServerNow(250, playing);
   const phase = playing ? zoomPhase(now - game.startedAt) : null;
@@ -120,20 +121,19 @@ function HostPanel({ game, items, onControl, error }) {
   const secondsLeft = playing ? Math.max(0, Math.ceil(((phase.nextAt ?? ZOOM_LOCK_MS) - elapsed) / 1000)) : 0;
 
   return (
-    <section className="panel host-screen" ref={stageRef}>
+    <section className="panel host-screen" ref={big.outerRef}>
+      <div {...big.innerProps}>
       <div className="panel-head">
-        <h2 className="panel-title">🔍 Guess the Item — host</h2>
+        <h2 className="panel-title">🔍 Guess the Item</h2>
         <div className="actions">
-          <button className="btn small ghost" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen?.())}>
-            ⛶ Big screen
-          </button>
+          <BigScreenButton big={big} />
           {(status === "playing" || status === "leaderboard") && (
-            <button className="btn small danger-btn" onClick={() => onControl("stop")}>
+            <button className="btn small danger-btn screen-hide" onClick={() => onControl("stop")}>
               ■ Stop game
             </button>
           )}
           {status !== "idle" && (
-            <button className="btn small ghost" onClick={() => onControl("reset")}>
+            <button className="btn small ghost screen-hide" onClick={() => onControl("reset")}>
               Reset game
             </button>
           )}
@@ -177,7 +177,7 @@ function HostPanel({ game, items, onControl, error }) {
           )}
           <div className="actions">
             <button className="btn primary big" onClick={() => onControl("next")} disabled={!game.reveal}>
-              {game.round + 1 >= game.rounds ? "Show final leaderboard →" : "Show leaderboard →"}
+              {game.round + 1 >= game.rounds ? "Show the winners →" : "Show top 3 →"}
             </button>
           </div>
         </div>
@@ -187,8 +187,8 @@ function HostPanel({ game, items, onControl, error }) {
         <div className="host-play">
           <h3 className="sun-heading center-text">
             {status === "final"
-              ? `🏆 Final leaderboard${game.stoppedEarly ? ` (stopped after picture ${game.round + 1})` : ""}`
-              : `Leaderboard after picture ${game.round + 1} of ${game.rounds}`}
+              ? `🏆 The winners${game.stoppedEarly ? ` (stopped after picture ${game.round + 1})` : ""}`
+              : `Top 3 after picture ${game.round + 1} of ${game.rounds}`}
           </h3>
           <Leaderboard rows={game.leaderboard} rounds={game.stoppedEarly ? game.round + 1 : game.rounds} final={status === "final"} big />
           <div className="actions">
@@ -205,7 +205,8 @@ function HostPanel({ game, items, onControl, error }) {
         </div>
       )}
       {error && <p className="note error-text center">{error}</p>}
-      <p className="muted small-print center">Shortcut: → or N for Next (works with a presenter clicker).</p>
+      <p className="muted small-print center screen-hide">Shortcut: → or N for Next (works with a presenter clicker).</p>
+      </div>
     </section>
   );
 }

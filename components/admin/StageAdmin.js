@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Confetti } from "@/components/Confetti";
+import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { StageContestants, StageQuestion } from "@/components/games/StagePlayer";
 import { fetchStageAdmin, stageAdmin } from "@/lib/store";
 import { usePolling } from "@/lib/hooks";
@@ -13,7 +14,7 @@ export default function StageAdmin() {
   const [error, setError] = useState("");
   const [custom, setCustom] = useState("");
   const [selected, setSelected] = useState([]);
-  const stageRef = useRef(null);
+  const big = useBigScreen();
 
   useEffect(() => setSelected([]), [s?.round]);
 
@@ -36,16 +37,15 @@ export default function StageAdmin() {
   const toggle = (t) => setSelected((sel) => (sel.includes(t) ? sel.filter((x) => x !== t) : [...sel, t]));
 
   return (
-    <section className="panel host-screen stage-host" ref={stageRef}>
+    <section className="panel host-screen stage-host" ref={big.outerRef}>
       {s.status === "winners" && <Confetti key={`${s.round}-${s.winners.join()}`} />}
+      <div {...big.innerProps}>
       <div className="panel-head">
-        <h2 className="panel-title">🎤 Spotlight — host {s.round > 0 && <span className="muted">· Round {s.round}</span>}</h2>
+        <h2 className="panel-title">🎤 Spotlight {s.round > 0 && <span className="muted">· Round {s.round}</span>}</h2>
         <div className="actions">
-          <button className="btn small ghost" onClick={() => (document.fullscreenElement ? document.exitFullscreen() : stageRef.current?.requestFullscreen?.())}>
-            ⛶ Big screen
-          </button>
+          <BigScreenButton big={big} />
           {s.status !== "idle" && (
-            <button className="btn small danger-btn" onClick={() => act("stop")} disabled={busy}>
+            <button className="btn small danger-btn screen-hide" onClick={() => act("stop")} disabled={busy}>
               ■ Stop game
             </button>
           )}
@@ -102,7 +102,7 @@ export default function StageAdmin() {
 
           {(s.status === "drawn" || s.status === "question") && (
             <form
-              className="sun-form stage-custom"
+              className="sun-form stage-custom screen-hide"
               onSubmit={(e) => {
                 e.preventDefault();
                 act("question", { text: custom });
@@ -115,7 +115,7 @@ export default function StageAdmin() {
               </button>
             </form>
           )}
-          <p className="muted small-print center">
+          <p className="muted small-print center screen-hide">
             {s.remaining} guests left who haven’t been called up · ↻ swaps someone who isn’t here for another random guest
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function StageAdmin() {
       {error && <p className="note error-text center">{error}</p>}
 
       {s.history.length > 0 && (
-        <details className="stage-history">
+        <details className="stage-history screen-hide">
           <summary>Previous rounds ({s.history.length})</summary>
           <ol>
             {s.history.map((h) => (
@@ -138,6 +138,7 @@ export default function StageAdmin() {
           </button>
         </details>
       )}
+      </div>
     </section>
   );
 }

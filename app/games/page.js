@@ -2,13 +2,12 @@
 
 import ZoomPlayer from "@/components/games/ZoomPlayer";
 import SunPlayer from "@/components/games/SunPlayer";
-import TelPlayer from "@/components/games/TelPlayer";
 import StagePlayer from "@/components/games/StagePlayer";
 import { fetchLive } from "@/lib/store";
 import { usePolling } from "@/lib/hooks";
 import { gameById } from "@/lib/games";
 
-const PLAYERS = { zoom: ZoomPlayer, sun: SunPlayer, tel: TelPlayer, stage: StagePlayer };
+const PLAYERS = { stage: StagePlayer, zoom: ZoomPlayer, sun: SunPlayer };
 
 // Guests only see the game the host has put live; it switches automatically.
 export default function GamesPage() {
