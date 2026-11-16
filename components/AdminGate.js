@@ -31,7 +31,7 @@ export function PasscodeGate({ title = "Admins only", role = "admin" }) {
       <p className="big-emoji" aria-hidden="true">{desk ? "🎫" : "🔮"}</p>
       <h2 className="panel-title">{title}</h2>
       <p className="muted">
-        {desk ? "Enter the registration password. (The game admin password doesn’t work here.)" : "Enter the game admin password. (The registration password doesn’t work here.)"}
+        {desk ? "Enter the registration password." : "Enter the game admin password."}
       </p>
       <form className="gate-form" onSubmit={submit}>
         <input type="password" value={value} onChange={(e) => setValue(e.target.value)} placeholder={desk ? "Registration password" : "Game admin password"} autoFocus autoComplete="current-password" />
