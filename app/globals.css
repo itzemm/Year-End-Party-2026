@@ -1790,39 +1790,29 @@ button.stage-card:hover {
 }
 
 /* My Ticket: help button + name finder */
-.help-wrap {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  margin-top: -8px;
+.help-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-align: left;
 }
-.help-btn {
-  width: 40px;
-  height: 40px;
+.help-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 2px solid var(--ice);
   background: rgba(169, 220, 255, 0.15);
   color: var(--frost);
-  font: inherit;
-  font-size: 1.4rem;
   font-weight: 700;
+  font-size: 1.05rem;
   line-height: 1;
-  cursor: pointer;
-}
-.help-btn:hover,
-.help-btn[aria-expanded="true"] {
-  background: var(--ice);
-  color: var(--ink);
-}
-.help-bubble {
-  margin: 0;
-  max-width: 420px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: var(--snow);
-  color: var(--ink);
-  text-align: center;
-  animation: pop-in 0.25s ease-out;
 }
 .chosen-name {
   display: flex;

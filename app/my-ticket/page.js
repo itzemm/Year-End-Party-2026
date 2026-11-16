@@ -36,7 +36,6 @@ export default function MyTicketPage() {
   if (!me)
     return (
       <div className="stack">
-        <HelpButton />
         <LoginForm onLoggedIn={load} initialError={error} />
       </div>
     );
@@ -53,7 +52,6 @@ export default function MyTicketPage() {
 
   return (
     <div className="ticket-page">
-      <HelpButton />
       <p className="welcome">
         Welcome back, <b>{guest.name}</b>. Here is your invitation to the Winter Ball.
       </p>
@@ -89,24 +87,7 @@ export default function MyTicketPage() {
   );
 }
 
-const HELP_TEXT = "If you are unable to find your name, find Patricia Yeo or go to the registration booth for assistance.";
-
-// Round "?" button that shows who to ask for help.
-function HelpButton() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="help-wrap">
-      <button type="button" className="help-btn" aria-label="Help" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        ?
-      </button>
-      {open && (
-        <p className="help-bubble" role="note">
-          {HELP_TEXT}
-        </p>
-      )}
-    </div>
-  );
-}
+const HELP_TEXT = "Cannot find your name? Ask at the registration booth or find Patricia Yeo for help.";
 
 function LoginForm({ onLoggedIn, initialError }) {
   const [query, setQuery] = useState("");
@@ -208,7 +189,12 @@ function LoginForm({ onLoggedIn, initialError }) {
           {busy ? "Turning the key…" : "Open my ticket"}
         </button>
       </form>
-      <p className="muted small-print">Lost your code? Ask at the registration booth — they can look it up or issue a new one.</p>
+      <p className="help-line">
+        <span className="help-icon" aria-hidden="true">
+          ?
+        </span>
+        <span>{HELP_TEXT}</span>
+      </p>
     </section>
   );
 }
