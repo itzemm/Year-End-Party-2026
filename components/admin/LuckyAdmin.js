@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import PrizeWheel from "./PrizeWheel";
 import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { Confetti } from "@/components/Confetti";
-import { clearWinners, drawWinner, fetchGuests, fetchWinners } from "@/lib/store";
+import { clearWinners, drawWinner, fetchWheelNames, fetchWinners } from "@/lib/store";
 
 // Lucky draw: a wheel of every registered guest's name. Spin → one winner.
 export default function LuckyAdmin() {
@@ -18,7 +18,7 @@ export default function LuckyAdmin() {
 
   const load = useCallback(async () => {
     try {
-      const [g, w] = await Promise.all([fetchGuests(), fetchWinners()]);
+      const [g, w] = await Promise.all([fetchWheelNames(), fetchWinners()]);
       setGuests(g);
       setWinners(w);
     } catch (e) {

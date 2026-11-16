@@ -34,7 +34,7 @@ export default function AdminApp() {
   }
 
   if (!status) return <p className="muted center">Checking…</p>;
-  if (status.authRequired && !status.authorized) return <PasscodeGate title="Admin area" />;
+  if (status.authRequired && !status.authorized) return <PasscodeGate title="Game admin" />;
 
   const { Component } = SECTIONS.find((s) => s.id === active);
   return (
@@ -61,7 +61,7 @@ export default function AdminApp() {
         </div>
         {status.authRequired && (
           <button className="btn small ghost" onClick={clearPasscode}>
-            Log out
+            Log out of game admin
           </button>
         )}
       </div>

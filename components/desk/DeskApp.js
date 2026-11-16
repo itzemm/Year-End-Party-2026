@@ -18,7 +18,7 @@ export default function DeskApp() {
       <div className="admin-bar">
         <h2 className="panel-title">🎟️ Registration</h2>
         <button className="btn small ghost" onClick={clearDeskPasscode}>
-          Log out
+          Log out of registration
         </button>
       </div>
       <RegistrationDesk />

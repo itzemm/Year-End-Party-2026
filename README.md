@@ -14,7 +14,7 @@ A party site for ~120 guests: tickets with QR codes, two live phone games, and a
 
 ## Registration (front desk)
 
-Click the scanner icon in the top-left corner and enter the registration password: **`registration123`** (set `REGISTRATION_PASSCODE` in Vercel to change it). The admin password also works. The registration password does **not** open the admin area.
+Click the scanner icon in the top-left corner and enter the registration password: **`registration123`** (set `REGISTRATION_PASSCODE` in Vercel to change it). Registration and the game admin are **completely separate**: each has its own password, sign-in and **Log out** button, and neither password opens the other area.
 
 Type the guest's **first name** and **last name** → **Create ticket**. The name is saved as “First Last”, which is how guests find themselves on My Ticket. Each guest gets a ticket with a QR code, a lucky draw number (`WL26-0001`…) and a 6-character **access code**. **Copy invite message** copies a ready-to-send message with their login details. **New code** replaces a lost code.
 
@@ -109,5 +109,7 @@ lib/
 | `/api/sun` · `/api/sun/me` · `/api/sun/entry` | guests | Smallest Unique Number state, own pick, pick a number |
 | `/api/lucky` (GET) | guests | the revealed lucky draw winner |
 | `/api/time` | anyone | server clock for countdowns |
-| `/api/guests…`, `/api/winners` (GET) | registration | registration password (or admin password) |
+| `/api/guests…` | registration | registration password only |
+| `/api/winners` (GET) | both | registration or game admin password |
+| `/api/lucky/names` | admin | names for the wheel (no access codes) |
 | `/api/stage/admin`, `/api/zoom/admin`, `/api/sun/admin`, `/api/live` (POST), `/api/lucky/draw`, `/api/winners` (DELETE) | admin | require the `x-admin-passcode` header |
