@@ -5,7 +5,7 @@ import ZoomStage from "@/components/games/ZoomStage";
 import Leaderboard from "@/components/games/Leaderboard";
 import JoinQr from "./JoinQr";
 import { OtherGameNotice, useOtherGameRunning } from "./LiveSwitch";
-import GameRules from "@/components/games/GameRules";
+import GameRules, { ZOOM_HINT } from "@/components/games/GameRules";
 import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchAdminImage, fetchZoom, fetchZoomItems, zoomAdmin } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
@@ -173,6 +173,7 @@ function HostPanel({ game, items, onControl, error }) {
             <span>{game.answerCount ?? 0} answers</span>
           </div>
           <ZoomStage imageBase={game.imageBase} level={phase.level} answer={game.reveal?.answer} />
+          {!phase.locked && <p className="rules-hint">💡 Hint: {ZOOM_HINT}</p>}
           <ZoomTimeline elapsed={elapsed} />
           {phase.locked && game.reveal && (
             <p className="center reveal-stat">

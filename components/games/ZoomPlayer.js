@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import ZoomStage from "./ZoomStage";
 import Leaderboard, { fmtTime } from "./Leaderboard";
 import LoginPrompt from "./LoginPrompt";
-import GameRules from "./GameRules";
+import GameRules, { ZOOM_HINT } from "./GameRules";
 import { fetchZoom, fetchZoomMe, submitZoomAnswer } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
 import { ZOOM_LOCK_MS, zoomPhase } from "@/lib/rules";
@@ -74,6 +74,7 @@ export default function ZoomPlayer() {
         {locked && <span className="timer">Answers locked</span>}
       </div>
       <ZoomStage imageBase={game.imageBase} level={locked ? 3 : phase.level} answer={game.reveal?.answer} />
+      {!locked && <p className="rules-hint small">💡 Hint: {ZOOM_HINT}</p>}
       {error && <p className="note">{error}</p>}
       {locked ? (
         <RevealResult me={me} reveal={game.reveal} test={game.test} />

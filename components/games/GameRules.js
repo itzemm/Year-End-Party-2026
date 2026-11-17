@@ -1,3 +1,5 @@
+export const ZOOM_HINT = "All the images are related to Christmas movies.";
+
 // "How to play" card, shown on the big screen before a game starts and on guests'
 // phones while they wait.
 export const RULES = {
@@ -19,6 +21,7 @@ export const RULES = {
       "Type what you think it is on your phone.",
       "The fastest and most accurate answers win!",
     ],
+    hint: ZOOM_HINT,
   },
   sun: {
     title: "Smallest Unique Number",
@@ -45,6 +48,7 @@ export default function GameRules({ game, big = false }) {
           <li key={i}>{line}</li>
         ))}
       </ol>
+      {r.hint && <p className="rules-hint">💡 Hint: {r.hint}</p>}
     </div>
   );
 }

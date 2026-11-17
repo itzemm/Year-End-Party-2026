@@ -2120,3 +2120,21 @@ button.stage-card:hover {
   font-size: 0.95rem;
   color: #a8f0c9;
 }
+.rules-hint {
+  margin: 10px 0 0;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(246, 217, 139, 0.15);
+  border: 1px solid rgba(246, 217, 139, 0.5);
+  color: var(--glow);
+  font-weight: 700;
+  text-align: center;
+}
+.rules-card.big .rules-hint {
+  font-size: 1.45rem;
+  margin-top: 16px;
+}
+.rules-hint.small {
+  margin: 0;
+  font-size: 0.95rem;
+}

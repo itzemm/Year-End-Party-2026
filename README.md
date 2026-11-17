@@ -39,7 +39,7 @@ At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Spo
 3. Tap the winner(s) and **🏆 Confirm**. **Next round** draws 5 new names.
 
 ### 2. Guess the Image (test round + 5 rounds)
-1. Upload 5 pictures (rounds 1–5) and type each answer (add other accepted answers with commas). Optionally upload a **test round** picture: it's played first so everyone can practise, and it **never counts** towards the scores. Click a picture to choose where the close-up starts, then **Save** each one.
+1. All the images should relate to **Christmas movies** — guests are told this as a hint. Upload 5 pictures (rounds 1–5) and type each answer (add other accepted answers with commas). Optionally upload a **test round** picture: it's played first so everyone can practise, and it **never counts** towards the scores. Click a picture to choose where the close-up starts, then **Save** each one.
 2. **Start game**. If there's a test-round picture it plays first; press **Start round 1 →** after it. Each picture **zooms out every 10 seconds, 3 times**, then stays fully zoomed out for **15 more seconds**. Then answers lock and the answer is revealed.
 3. **Show Leaderboard →** shows the top 3 (🥇🥈🥉), then **Next picture →**. After picture 5 it shows **the 3 winners**: most correct answers, then fastest total time.
 
