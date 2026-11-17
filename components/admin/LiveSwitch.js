@@ -1,8 +1,9 @@
 "use client";
 
-import { fetchLive } from "@/lib/store";
+import { useState } from "react";
+import { fetchLive, setLiveGame } from "@/lib/store";
 import { usePolling } from "@/lib/hooks";
-import { gameById } from "@/lib/games";
+import { GAMES, gameById } from "@/lib/games";
 
 export function useLive() {
   return usePolling(fetchLive, () => 3000).data;
@@ -19,22 +20,38 @@ export function OtherGameNotice({ name }) {
   return <p className="note error-text screen-hide">{name} is still running — stop it before starting this game.</p>;
 }
 
-// Shows which game guests currently see. It follows the admin automatically:
-// starting a game shows it; stopping/resetting it clears guests' screens.
+// Choose what guests' Games tab shows. Starting a game also switches it automatically,
+// and stopping it switches back to Nothing.
 export default function LiveSwitch() {
-  const live = useLive();
-  const game = live?.game ? gameById(live.game) : null;
+  const { data: live, setData } = usePolling(fetchLive, () => 3000);
+  const [busy, setBusy] = useState(false);
+  const current = live?.game ?? null;
+
+  async function choose(game) {
+    setBusy(true);
+    try {
+      setData(await setLiveGame(game));
+    } catch {
+      /* the next poll shows the real state */
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="live-switch">
-      <span className="live-switch-label">📱 Guests’ Games tab:</span>
-      {game ? (
-        <span className="live-opt active">
-          <span className="live-dot" aria-hidden="true" /> {game.icon} {game.label}
-          {live.inProgress ? " — in progress" : " — finished (results showing)"}
-        </span>
-      ) : (
-        <span className="muted">No games currently — start a game below and it appears on everyone’s phone.</span>
-      )}
+      <span className="live-switch-label">📱 Guests’ Games tab shows:</span>
+      <div className="live-options">
+        <button className={`live-opt ${current === null ? "active" : ""}`} onClick={() => choose(null)} disabled={busy}>
+          {current === null && <span className="live-dot" aria-hidden="true" />} Nothing
+        </button>
+        {GAMES.map((g) => (
+          <button key={g.id} className={`live-opt ${current === g.id ? "active" : ""}`} onClick={() => choose(g.id)} disabled={busy}>
+            {current === g.id && <span className="live-dot" aria-hidden="true" />} {g.icon} {g.label}
+          </button>
+        ))}
+      </div>
+      {current && live?.inProgress && <span className="muted small-print">in progress</span>}
     </div>
   );
 }
