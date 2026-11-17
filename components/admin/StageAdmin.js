@@ -61,9 +61,6 @@ export default function StageAdmin() {
           <GameRules game="stage" big />
           <div className="host-rules-side">
             <JoinQr path="/games" label="Scan to follow along" />
-            <p className="muted small-print screen-hide">
-              {s.remaining} of {s.remaining + s.pickedCount} guests haven’t been picked yet.
-            </p>
             <OtherGameNotice name={otherGame} />
             <button className="btn primary big" onClick={() => act("draw")} disabled={busy || s.remaining === 0 || Boolean(otherGame)}>
               🎲 Draw {STAGE_PICK} names
@@ -122,9 +119,6 @@ export default function StageAdmin() {
               </button>
             </form>
           )}
-          <p className="muted small-print center screen-hide">
-            {s.remaining} guests left who haven’t been called up · ↻ swaps someone who isn’t here for another random guest
-          </p>
         </div>
       )}
       {error && <p className="note error-text center">{error}</p>}

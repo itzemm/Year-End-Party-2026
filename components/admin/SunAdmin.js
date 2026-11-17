@@ -77,7 +77,6 @@ export default function SunAdmin() {
             <GameRules game="sun" big />
             <div className="host-rules-side">
               <JoinQr path="/games" label="Scan to play" />
-              {phase === "stopped" && <p className="note screen-hide">Round {round.id} was stopped.</p>}
               <OtherGameNotice name={otherGame} />
               <button className="btn primary big" onClick={() => act("start")} disabled={busy || Boolean(otherGame)}>
                 Start 1-minute round

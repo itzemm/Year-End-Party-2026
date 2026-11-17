@@ -7,7 +7,7 @@ import SunAdmin from "./SunAdmin";
 import LuckyAdmin from "./LuckyAdmin";
 import StageAdmin from "./StageAdmin";
 import LiveSwitch from "./LiveSwitch";
-import { clearPasscode } from "@/lib/store";
+import { clearPasscode, resetAllGames } from "@/lib/store";
 import { useAdminStatus } from "@/lib/hooks";
 
 const SECTIONS = [
@@ -59,6 +59,20 @@ export default function AdminApp() {
             </button>
           ))}
         </div>
+        <button
+          className="btn small danger-btn"
+          onClick={async () => {
+            if (!confirm("Reset ALL games? Spotlight, Guess the Image and Smallest Unique Number go back to the start (uploaded pictures and lucky draw winners are kept), and guests see “No games currently”.")) return;
+            try {
+              await resetAllGames();
+              window.location.reload();
+            } catch (e) {
+              alert(e.message);
+            }
+          }}
+        >
+          ↺ Reset all games
+        </button>
         {status.authRequired && (
           <button className="btn small ghost" onClick={clearPasscode}>
             Log out of game admin

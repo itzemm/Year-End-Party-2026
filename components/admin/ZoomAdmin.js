@@ -153,7 +153,6 @@ function HostPanel({ game, items, onControl, error }) {
           <GameRules game="zoom" big />
           <div className="host-rules-side">
             <JoinQr path="/games" label="Scan to play" />
-            {status === "stopped" && <p className="note screen-hide">The game was stopped before any picture finished.</p>}
             {!ready && <p className="note screen-hide">Add all 5 pictures below before starting.</p>}
             <OtherGameNotice name={otherGame} />
             <button className="btn primary big" onClick={() => onControl("start")} disabled={!ready || Boolean(otherGame)}>
@@ -210,7 +209,6 @@ function HostPanel({ game, items, onControl, error }) {
         </div>
       )}
       {error && <p className="note error-text center">{error}</p>}
-      <p className="muted small-print center screen-hide">Shortcut: → or N for Next (works with a presenter clicker).</p>
       </div>
     </section>
   );
