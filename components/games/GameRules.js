@@ -12,10 +12,10 @@ export const RULES = {
     ],
   },
   zoom: {
-    title: "Guess the Item",
+    title: "Guess the Image",
     icon: "🔍",
     rules: [
-      "There are 5 mystery pictures, shown one at a time.",
+      "First there’s a test round to practise — it doesn’t count. Then 5 mystery pictures, one at a time.",
       "Each picture starts as a close-up and zooms out every 10 seconds (3 times).",
       "Type what you think it is on your phone — you can change your answer until it locks, 15 seconds after the full picture shows.",
       "The most correct answers wins; ties go to whoever answered fastest. The top 3 are the winners!",

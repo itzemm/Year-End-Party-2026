@@ -1,6 +1,6 @@
 const fmtTime = (ms) => `${(ms / 1000).toFixed(1)}s`;
 
-// Guess the Item top 3: most correct first, then fastest total time.
+// Guess the Image top 3: most correct first, then fastest total time.
 const MEDALS = ["🥇", "🥈", "🥉"];
 export default function Leaderboard({ rows, rounds, final = false, meTicket, big = false }) {
   if (!rows?.length) return <p className="muted center">No answers yet.</p>;

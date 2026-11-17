@@ -9,7 +9,7 @@ import { fetchZoom, fetchZoomMe, submitZoomAnswer } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
 import { ZOOM_LOCK_MS, zoomPhase } from "@/lib/rules";
 
-// What guests see on their phones during Guess the Item.
+// What guests see on their phones during Guess the Image.
 export default function ZoomPlayer() {
   const { data: game, error } = usePolling(fetchZoom, (g) => (g?.status === "idle" ? 5000 : 2500));
   const playing = game?.status === "playing";
@@ -37,13 +37,13 @@ export default function ZoomPlayer() {
   if (game.status === "idle") {
     return (
       <div className="panel-inner">
-        <p className="center">Waiting for the host to start Guess the Item…</p>
+        <p className="center">Waiting for the host to start Guess the Image…</p>
         <GameRules game="zoom" />
       </div>
     );
   }
 
-  const roundLabel = `Picture ${game.round + 1} of ${game.rounds}`;
+  const roundLabel = game.test ? "🧪 Test round — doesn’t count" : `Picture ${game.round + 1} of ${game.rounds}`;
 
   if (game.status === "leaderboard" || game.status === "final") {
     const final = game.status === "final";
@@ -76,7 +76,7 @@ export default function ZoomPlayer() {
       <ZoomStage imageBase={game.imageBase} level={locked ? 3 : phase.level} answer={game.reveal?.answer} />
       {error && <p className="note">{error}</p>}
       {locked ? (
-        <RevealResult me={me} reveal={game.reveal} />
+        <RevealResult me={me} reveal={game.reveal} test={game.test} />
       ) : (
         <AnswerBox key={`${game.gameId}-${game.round}`} current={me?.round === game.round ? me?.entry : null} onSaved={setMe} round={game.round} />
       )}
@@ -124,10 +124,11 @@ function AnswerBox({ current, onSaved, round }) {
   );
 }
 
-function RevealResult({ me, reveal }) {
+function RevealResult({ me, reveal, test }) {
   if (!reveal) return <p className="muted center">Revealing the answer…</p>;
   return (
     <div className="reveal-box">
+      {test && <p className="center test-pill">🧪 That was the test round — it doesn’t count. Round 1 is next!</p>}
       {me?.entry && me.correct === undefined ? (
         <p className="my-outcome">Checking your answer…</p>
       ) : me?.entry ? (

@@ -12,7 +12,7 @@ import { useAdminStatus } from "@/lib/hooks";
 
 const SECTIONS = [
   { id: "stage", label: "Spotlight", icon: "🎤", Component: StageAdmin },
-  { id: "zoom", label: "Guess the Item", icon: "🔍", Component: ZoomAdmin },
+  { id: "zoom", label: "Guess the Image", icon: "🔍", Component: ZoomAdmin },
   { id: "sun", label: "Smallest Unique Number", icon: "🔢", Component: SunAdmin },
   { id: "lucky", label: "Lucky Draw", icon: "🎁", Component: LuckyAdmin },
 ];

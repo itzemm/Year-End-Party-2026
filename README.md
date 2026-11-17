@@ -1,6 +1,6 @@
 # Winter Wonderland — Year End Party 2026 ❄️⛄
 
-A party site for ~150 guests: name-only tickets, three live phone games (Spotlight, Guess the Item, Smallest Unique Number) and a lucky-draw wheel. Deploys to Vercel.
+A party site for ~150 guests: name-only tickets, three live phone games (Spotlight, Guess the Image, Smallest Unique Number) and a lucky-draw wheel. Deploys to Vercel.
 
 ## Who sees what
 
@@ -24,22 +24,22 @@ Logging in is name-only (no code), so a guest could open someone else's ticket b
 
 ## Admin area
 
-Click the snow globe in the top-right corner and enter the game admin password: **`games123`** (set `ADMIN_PASSCODE` in Vercel to change it). The games run in this order: **Spotlight → Guess the Item → Smallest Unique Number**, then the **Lucky Draw**.
+Click the snow globe in the top-right corner and enter the game admin password: **`games123`** (set `ADMIN_PASSCODE` in Vercel to change it). The games run in this order: **Spotlight → Guess the Image → Smallest Unique Number**, then the **Lucky Draw**.
 
 **⛶ Big screen** (on every game and the lucky draw) goes full screen and scales the whole view up to fill about 90% of the projector, so all text is very large. Admin-only controls are hidden on the big screen, and keyboard shortcuts keep working.
 
 ### What guests see (the live switch)
-At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Spotlight / Guess the Item / Smallest Unique Number**. Starting a game switches it live automatically.
+At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Spotlight / Guess the Image / Smallest Unique Number**. Starting a game switches it live automatically.
 
 ### 1. Spotlight (on stage)
 1. **🎲 Draw 5 names**: 5 random guests are called up on stage, and their phones say “You're on stage!”. **Nobody is drawn twice** (until *Start over*). **↻ not here** swaps someone out.
 2. **🎲 Reveal a random question** (short and quick to judge, e.g. “Who has the longest hair?”), **Different question**, or type your own.
 3. Tap the winner(s) and **🏆 Confirm**. **Next round** draws 5 new names.
 
-### 2. Guess the Item (5 rounds)
-1. Upload 5 pictures and type each answer (add other accepted answers with commas). Click a picture to choose where the close-up starts, then **Save** each round.
-2. **Start game**. Each picture **zooms out every 10 seconds, 3 times**, then stays fully zoomed out for **15 more seconds**. Then answers lock and the answer is revealed.
-3. **Show Leaderboard →** shows the leaderboard (🥇🥈🥉), then **Next picture →**. After picture 5 it shows **the 3 winners**: most correct answers, then fastest total time.
+### 2. Guess the Image (test round + 5 rounds)
+1. Upload 5 pictures (rounds 1–5) and type each answer (add other accepted answers with commas). Optionally upload a **test round** picture: it's played first so everyone can practise, and it **never counts** towards the scores. Click a picture to choose where the close-up starts, then **Save** each one.
+2. **Start game**. If there's a test-round picture it plays first; press **Start round 1 →** after it. Each picture **zooms out every 10 seconds, 3 times**, then stays fully zoomed out for **15 more seconds**. Then answers lock and the answer is revealed.
+3. **Show Leaderboard →** shows the top 3 (🥇🥈🥉), then **Next picture →**. After picture 5 it shows **the 3 winners**: most correct answers, then fastest total time.
 
 ### 3. Smallest Unique Number
 1. **Start 1-minute round**. Guests pick a number from **1 to 100** on their phones. When the minute is up (or you press *Everyone's in — lock numbers now*), numbers lock.
@@ -92,7 +92,7 @@ lib/
   kv.js         storage (Upstash Redis, or in-memory for local dev)
   db.js         guests, logins, name finder, lucky draw
   stageGame.js  Spotlight server logic
-  zoomGame.js   Guess the Item server logic
+  zoomGame.js   Guess the Image server logic
   sunGame.js    Smallest Unique Number server logic
   live.js       which game guests see
   rules.js      shared timings, answer matching and scoring
@@ -107,7 +107,7 @@ lib/
 | `/api/names?q=` | guests | My Ticket name finder |
 | `/api/login`, `/api/logout`, `/api/me` | guests | open a ticket by tapping a name; own ticket and wins |
 | `/api/live` (GET) · `/api/stage` | guests | which game is live; Spotlight state |
-| `/api/zoom` · `/api/zoom/me` · `/api/zoom/answer` · `/api/zoom/image` | guests | Guess the Item state, own result, answer, pictures (time-gated) |
+| `/api/zoom` · `/api/zoom/me` · `/api/zoom/answer` · `/api/zoom/image` | guests | Guess the Image state, own result, answer, pictures (time-gated) |
 | `/api/sun` · `/api/sun/me` · `/api/sun/entry` | guests | Smallest Unique Number state, own pick, pick a number |
 | `/api/lucky` (GET) | guests | the revealed lucky draw winner |
 | `/api/time` | anyone | server clock for countdowns |

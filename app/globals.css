@@ -756,7 +756,7 @@ select:focus {
   justify-content: space-between;
 }
 
-/* Guess the Item */
+/* Guess the Image */
 .zoom-meta {
   display: flex;
   justify-content: space-between;
@@ -2100,4 +2100,8 @@ button.stage-card:hover {
   .host-rules {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+.test-pill {
+  color: var(--glow);
+  font-weight: 700;
 }

@@ -9,7 +9,11 @@ import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchAdminImage, fetchZoom, fetchZoomItems, zoomAdmin } from "@/lib/store";
 import { usePolling, useServerNow } from "@/lib/hooks";
 import { cropRect, fileToImage, makeZoomLevels, suggestFocus } from "@/lib/imageTools";
-import { ZOOM_LOCK_MS, ZOOM_SCALES, ZOOM_STEP_MS, zoomPhase } from "@/lib/rules";
+import { ZOOM_LOCK_MS, ZOOM_ROUNDS, ZOOM_SCALES, ZOOM_STEP_MS, ZOOM_TEST_SLOT, zoomPhase } from "@/lib/rules";
+
+const slotLabel = (slot) => (slot === ZOOM_TEST_SLOT ? "Test round" : `Round ${slot + 1}`);
+// Shown in play order: the test round first, then rounds 1–5.
+const SLOT_ORDER = [ZOOM_TEST_SLOT, ...Array.from({ length: ZOOM_ROUNDS }, (_, i) => i)];
 
 export default function ZoomAdmin() {
   const [items, setItems] = useState(null);
@@ -38,7 +42,7 @@ export default function ZoomAdmin() {
   const running = game?.status === "playing" || game?.status === "leaderboard";
 
   async function control(action) {
-    if (action === "reset" && !confirm("Reset Guess the Item? The current game and its leaderboard will be cleared.")) return;
+    if (action === "reset" && !confirm("Reset Guess the Image? The current game and its leaderboard will be cleared.")) return;
     if (
       action === "stop" &&
       !confirm("Stop the game now? Everyone sees the final leaderboard for the pictures already revealed. The picture in progress won’t count.")
@@ -61,14 +65,15 @@ export default function ZoomAdmin() {
       <section className="panel">
         <h2 className="panel-title">🖼️ Pictures &amp; answers</h2>
         <p className="muted">
-          Upload one picture per round and type the answer. Add other accepted answers separated by commas (e.g. “mug, coffee cup”).
+          Upload one picture per round and type the answer. The <b>test round</b> (optional) is played first so everyone can practise —
+          it never counts towards the scores. Add other accepted answers separated by commas (e.g. “mug, coffee cup”).
           Small typos are accepted automatically. Click the picture to choose where the close-up starts, then press <b>Save</b>{" "}
           on each round. Saved pictures are stored in the database and stay there when you close the page.
           {running && " Pictures are locked while a game is running."}
         </p>
         {anyUnsaved && (
           <p className="banner">
-            Rounds {Object.keys(unsaved).filter((k) => unsaved[k]).map((k) => Number(k) + 1).join(", ")} have unsaved changes — press Save
+            {Object.keys(unsaved).filter((k) => unsaved[k]).map((k) => slotLabel(Number(k))).join(", ")}: unsaved changes — press Save
             on each.
           </p>
         )}
@@ -76,11 +81,11 @@ export default function ZoomAdmin() {
           <p className="muted">Loading…</p>
         ) : (
           <div className="slot-grid">
-            {items.map((item, slot) => (
+            {SLOT_ORDER.map((slot) => (
               <SlotEditor
                 key={slot}
                 slot={slot}
-                item={item}
+                item={items[slot]}
                 disabled={running}
                 onSaved={setItems}
                 onDirty={(d) => setUnsaved((u) => (u[slot] === d ? u : { ...u, [slot]: d }))}
@@ -98,7 +103,7 @@ function HostPanel({ game, items, onControl, error }) {
   const playing = game?.status === "playing";
   const now = useServerNow(250, playing);
   const phase = playing ? zoomPhase(now - game.startedAt) : null;
-  const ready = items && items.every(Boolean);
+  const ready = items && items.slice(0, ZOOM_ROUNDS).every(Boolean); // the test round is optional
 
   // Presenter remote / keyboard: → or N = Next.
   const canNext = (playing && Boolean(game?.reveal)) || game?.status === "leaderboard";
@@ -125,7 +130,7 @@ function HostPanel({ game, items, onControl, error }) {
     <section className="panel host-screen" ref={big.outerRef}>
       <div {...big.innerProps}>
       <div className="panel-head">
-        <h2 className="panel-title">🔍 Guess the Item</h2>
+        <h2 className="panel-title">🔍 Guess the Image</h2>
         <div className="actions">
           <BigScreenButton big={big} />
           {(status === "playing" || status === "leaderboard") && (
@@ -158,9 +163,7 @@ function HostPanel({ game, items, onControl, error }) {
       {playing && (
         <div className="host-play">
           <div className="zoom-meta big">
-            <span>
-              Picture {game.round + 1} of {game.rounds}
-            </span>
+            <span className={game.test ? "test-pill" : ""}>{game.test ? "🧪 Test round — doesn’t count" : `Picture ${game.round + 1} of ${game.rounds}`}</span>
             <span className={`timer ${phase.level >= 3 && !phase.locked ? "urgent" : ""}`}>
               {phase.locked ? "Answers locked" : phase.level >= 3 ? `Answers lock in ${secondsLeft}s` : `Zooming out in ${secondsLeft}s`}
             </span>
@@ -175,7 +178,7 @@ function HostPanel({ game, items, onControl, error }) {
           )}
           <div className="actions">
             <button className="btn primary big" onClick={() => onControl("next")} disabled={!game.reveal}>
-              {game.round + 1 >= game.rounds ? "Show the winners →" : "Show Leaderboard →"}
+              {game.test ? "Start round 1 →" : game.round + 1 >= game.rounds ? "Show the winners →" : "Show Leaderboard →"}
             </button>
           </div>
         </div>
@@ -285,7 +288,7 @@ function SlotEditor({ slot, item, disabled, onSaved, onDirty }) {
   }
 
   async function remove() {
-    if (!confirm(`Remove picture ${slot + 1}?`)) return;
+    if (!confirm(`Remove the ${slotLabel(slot).toLowerCase()} picture?`)) return;
     try {
       const { items } = await zoomAdmin("delete", { slot });
       onSaved(items);
@@ -298,7 +301,10 @@ function SlotEditor({ slot, item, disabled, onSaved, onDirty }) {
   return (
     <div className={`slot-card ${item ? "ready" : ""} ${dirty ? "unsaved" : ""}`}>
       <p className="slot-title">
-        Round {slot + 1}
+        <span>
+          {slotLabel(slot)}
+          {slot === ZOOM_TEST_SLOT && <small className="muted"> · practice, doesn’t count</small>}
+        </span>
         {dirty ? (
           <span className="slot-badge warn">Not saved</span>
         ) : item ? (
@@ -311,7 +317,7 @@ function SlotEditor({ slot, item, disabled, onSaved, onDirty }) {
         <FocusPicker img={img} focus={focus} onFocus={setFocus} />
       ) : savedPreview ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img className="slot-preview" src={savedPreview} alt={`Round ${slot + 1} picture`} />
+        <img className="slot-preview" src={savedPreview} alt={`${slotLabel(slot)} picture`} />
       ) : (
         <div className="slot-empty">No picture yet</div>
       )}
