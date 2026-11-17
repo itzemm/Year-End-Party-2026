@@ -15,10 +15,9 @@ export const RULES = {
     title: "Guess the Image",
     icon: "🔍",
     rules: [
-      "First there’s a test round to practise — it doesn’t count. Then 5 mystery pictures, one at a time.",
-      "Each picture starts as a close-up and zooms out every 10 seconds (3 times).",
-      "Type what you think it is on your phone — you can change your answer until it locks, 15 seconds after the full picture shows.",
-      "The most correct answers wins; ties go to whoever answered fastest. The top 3 are the winners!",
+      "Each picture shown starts as a close-up and zooms out every 10 seconds until the full picture is shown.",
+      "Type what you think it is on your phone.",
+      "The fastest and most accurate answers win!",
     ],
   },
   sun: {
