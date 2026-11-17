@@ -7,8 +7,8 @@ export const RULES = {
     rules: [
       "5 names are drawn at random — if your name appears, come up to the stage!",
       "The host reveals a fun question, like “Who has the longest hair?”",
+      "All players will reveal their answers.",
       "The host checks and picks the winner (or winners).",
-      "Nobody is called up twice, so everyone gets a chance.",
     ],
   },
   zoom: {
