@@ -1,40 +1,40 @@
 "use client";
 
-import { useState } from "react";
-import { fetchLive, setLiveGame } from "@/lib/store";
+import { fetchLive } from "@/lib/store";
 import { usePolling } from "@/lib/hooks";
-import { GAMES } from "@/lib/games";
+import { gameById } from "@/lib/games";
 
-// Which game guests see on their Games tab. Starting a game switches this automatically.
+export function useLive() {
+  return usePolling(fetchLive, () => 3000).data;
+}
+
+// If a different game is still in progress, its name (so this one can't start yet).
+export function useOtherGameRunning(gameId) {
+  const live = useLive();
+  return live?.game && live.game !== gameId && live.inProgress ? gameById(live.game).label : null;
+}
+
+export function OtherGameNotice({ name }) {
+  if (!name) return null;
+  return <p className="note error-text screen-hide">{name} is still running — stop it before starting this game.</p>;
+}
+
+// Shows which game guests currently see. It follows the admin automatically:
+// starting a game shows it; stopping/resetting it clears guests' screens.
 export default function LiveSwitch() {
-  const { data, setData } = usePolling(fetchLive, () => 3000);
-  const [busy, setBusy] = useState(false);
-  const live = data?.game ?? null;
-
-  async function choose(game) {
-    setBusy(true);
-    try {
-      setData(await setLiveGame(game));
-    } catch {
-      /* keep the old value; the next poll corrects it */
-    } finally {
-      setBusy(false);
-    }
-  }
-
+  const live = useLive();
+  const game = live?.game ? gameById(live.game) : null;
   return (
     <div className="live-switch">
-      <span className="live-switch-label">📱 Guests’ Games tab shows:</span>
-      <div className="live-options">
-        <button className={`live-opt ${live === null ? "active" : ""}`} onClick={() => choose(null)} disabled={busy}>
-          Nothing
-        </button>
-        {GAMES.map((g) => (
-          <button key={g.id} className={`live-opt ${live === g.id ? "active" : ""}`} onClick={() => choose(g.id)} disabled={busy}>
-            {live === g.id && <span className="live-dot" aria-hidden="true" />} {g.icon} {g.label}
-          </button>
-        ))}
-      </div>
+      <span className="live-switch-label">📱 Guests’ Games tab:</span>
+      {game ? (
+        <span className="live-opt active">
+          <span className="live-dot" aria-hidden="true" /> {game.icon} {game.label}
+          {live.inProgress ? " — in progress" : " — finished (results showing)"}
+        </span>
+      ) : (
+        <span className="muted">No games currently — start a game below and it appears on everyone’s phone.</span>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import ZoomStage from "@/components/games/ZoomStage";
 import Leaderboard from "@/components/games/Leaderboard";
 import JoinQr from "./JoinQr";
+import { OtherGameNotice, useOtherGameRunning } from "./LiveSwitch";
 import GameRules from "@/components/games/GameRules";
 import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchAdminImage, fetchZoom, fetchZoomItems, zoomAdmin } from "@/lib/store";
@@ -99,6 +100,7 @@ export default function ZoomAdmin() {
 }
 
 function HostPanel({ game, items, onControl, error }) {
+  const otherGame = useOtherGameRunning("zoom");
   const big = useBigScreen();
   const playing = game?.status === "playing";
   const now = useServerNow(250, playing);
@@ -153,7 +155,8 @@ function HostPanel({ game, items, onControl, error }) {
             <JoinQr path="/games" label="Scan to play" />
             {status === "stopped" && <p className="note screen-hide">The game was stopped before any picture finished.</p>}
             {!ready && <p className="note screen-hide">Add all 5 pictures below before starting.</p>}
-            <button className="btn primary big" onClick={() => onControl("start")} disabled={!ready}>
+            <OtherGameNotice name={otherGame} />
+            <button className="btn primary big" onClick={() => onControl("start")} disabled={!ready || Boolean(otherGame)}>
               Start game
             </button>
           </div>

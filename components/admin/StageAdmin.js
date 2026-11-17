@@ -6,6 +6,7 @@ import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { StageContestants, StageQuestion } from "@/components/games/StagePlayer";
 import GameRules from "@/components/games/GameRules";
 import JoinQr from "./JoinQr";
+import { OtherGameNotice, useOtherGameRunning } from "./LiveSwitch";
 import { fetchStageAdmin, stageAdmin } from "@/lib/store";
 import { usePolling } from "@/lib/hooks";
 import { STAGE_PICK } from "@/lib/rules";
@@ -17,6 +18,7 @@ export default function StageAdmin() {
   const [custom, setCustom] = useState("");
   const [selected, setSelected] = useState([]);
   const big = useBigScreen();
+  const otherGame = useOtherGameRunning("stage");
 
   useEffect(() => setSelected([]), [s?.round]);
 
@@ -62,7 +64,8 @@ export default function StageAdmin() {
             <p className="muted small-print screen-hide">
               {s.remaining} of {s.remaining + s.pickedCount} guests haven’t been picked yet.
             </p>
-            <button className="btn primary big" onClick={() => act("draw")} disabled={busy || s.remaining === 0}>
+            <OtherGameNotice name={otherGame} />
+            <button className="btn primary big" onClick={() => act("draw")} disabled={busy || s.remaining === 0 || Boolean(otherGame)}>
               🎲 Draw {STAGE_PICK} names
             </button>
           </div>

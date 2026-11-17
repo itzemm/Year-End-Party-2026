@@ -28,8 +28,8 @@ Click the snow globe in the top-right corner and enter the game admin password: 
 
 **⛶ Big screen** (on every game and the lucky draw) goes full screen and scales the whole view up to fill about 90% of the projector, so all text is very large. Admin-only controls are hidden on the big screen, and keyboard shortcuts keep working.
 
-### What guests see (the live switch)
-At the top of every admin section: **📱 Guests' Games tab shows: Nothing / Spotlight / Guess the Image / Smallest Unique Number**. Starting a game switches it live automatically.
+### What guests see (automatic)
+Guests' Games tab follows the admin automatically: **starting a game** (Draw names / Start game / Start round) puts it on everyone's phone, and **Stop / Reset** clears it, so guests see **“No games currently”**. A finished game's results stay on phones until the next game starts. **Only one game can be in progress at a time**: the other games' start buttons are disabled until it's finished or stopped. The bar at the top of the admin area shows what guests currently see.
 
 ### 1. Spotlight (on stage)
 1. **🎲 Draw 5 names**: 5 random guests are called up on stage, and their phones say “You're on stage!”. **Nobody is drawn twice** (until *Start over*). **↻ not here** swaps someone out.

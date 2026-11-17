@@ -19,7 +19,7 @@ export default function GamesPage() {
     return (
       <section className="panel empty">
         <p className="big-emoji" aria-hidden="true">🎮</p>
-        <h2 className="panel-title">No game right now</h2>
+        <h2 className="panel-title">No games currently</h2>
         <p className="muted">Keep this page open — the next game will appear here as soon as the host starts it.</p>
       </section>
     );

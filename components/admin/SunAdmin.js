@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ChestGrid, { ChestIcon } from "@/components/games/ChestGrid";
 import JoinQr from "./JoinQr";
+import { OtherGameNotice, useOtherGameRunning } from "./LiveSwitch";
 import GameRules from "@/components/games/GameRules";
 import { BigScreenButton, useBigScreen } from "./useBigScreen";
 import { fetchSun, sunAdmin } from "@/lib/store";
@@ -20,6 +21,7 @@ export default function SunAdmin() {
   const [busy, setBusy] = useState(false);
   const [popup, setPopup] = useState(null); // chest number being shown
   const big = useBigScreen();
+  const otherGame = useOtherGameRunning("sun");
   const round = data?.round;
   const now = useServerNow(250, round?.phase === "open" || round?.phase === "locked");
   const phase = round ? (round.phase === "open" && now >= round.endsAt ? "locked" : round.phase) : null;
@@ -76,7 +78,8 @@ export default function SunAdmin() {
             <div className="host-rules-side">
               <JoinQr path="/games" label="Scan to play" />
               {phase === "stopped" && <p className="note screen-hide">Round {round.id} was stopped.</p>}
-              <button className="btn primary big" onClick={() => act("start")} disabled={busy}>
+              <OtherGameNotice name={otherGame} />
+              <button className="btn primary big" onClick={() => act("start")} disabled={busy || Boolean(otherGame)}>
                 Start 1-minute round
               </button>
             </div>
