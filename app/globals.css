@@ -2105,3 +2105,18 @@ button.stage-card:hover {
   color: var(--glow);
   font-weight: 700;
 }
+.in-pill {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: rgba(110, 231, 168, 0.18);
+  color: #c9f7dd;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.checked-count {
+  margin-left: 10px;
+  font-family: var(--body);
+  font-size: 0.95rem;
+  color: #a8f0c9;
+}

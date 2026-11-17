@@ -80,7 +80,13 @@ export default function LuckyAdmin() {
                 <span className="mono">{revealed.ticketNo}</span>
               </div>
             ) : (
-              <p className="host-lead center">{spinning ? "Spinning…" : `${eligible.length} names on the wheel`}</p>
+              <p className="host-lead center">{spinning
+                  ? "Spinning…"
+                  : eligible.length
+                    ? `${eligible.length} checked-in guest${eligible.length === 1 ? "" : "s"} on the wheel`
+                    : guests.length
+                      ? "Every checked-in guest has already won — tick “Let previous winners win again” to keep going"
+                      : "Nobody has checked in yet — guests check in by opening My Ticket"}</p>
             )}
             <div className="actions">
               <button className="btn primary big" onClick={draw} disabled={spinning || wheelEntries.length === 0}>

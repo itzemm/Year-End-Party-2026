@@ -18,6 +18,8 @@ Click the scanner icon in the top-left corner and enter the registration passwor
 
 Type the guest's **first name** and **last name** → **Create ticket**. The name is saved as “First Last”, which is how guests find themselves on My Ticket. Each guest gets a ticket with a lucky draw number (`WL26-0001`…). **Copy invite message** copies a ready-to-send message telling them how to find their ticket.
 
+**Checked in:** a guest is checked in the first time they open their ticket on My Ticket. The guest list shows a **Checked in** column (with the time) and a count; the Excel export includes it. **Only checked-in guests are on the lucky draw wheel.**
+
 Logging in is name-only (no code), so a guest could open someone else's ticket by tapping their name. If two guests share a name, their ticket numbers are shown so they can pick the right one.
 
 **⬇ Export to Excel** downloads the guest list (.xlsx). **⬆ Import** accepts that export (restores/updates guests, keeping their ticket numbers), any Excel list of names (a “Name” column, “First name” + “Last name” columns, or names in column A), or old .json backups.
@@ -48,7 +50,7 @@ Guests' Games tab follows the admin automatically: **starting a game** (Draw nam
 4. Guests' phones show **only their own number** and how it's doing (“2 others picked 12 too”, “You won!”).
 
 ### 4. Lucky Draw
-A wheel of **every registered guest's name**, each as large as its slice allows. **Spin the wheel!** It lands on the winner, who appears on the big screen and on everyone's Lucky Draw page. Previous winners sit out unless you tick “Let previous winners win again”. The winners list is below the wheel.
+A wheel of the names of **every checked-in guest** (guests who have opened My Ticket), each as large as its slice allows. **Spin the wheel!** It lands on the winner, who appears on the big screen and on everyone's Lucky Draw page. Previous winners sit out unless you tick “Let previous winners win again”. The winners list is below the wheel.
 
 ## Deploy to Vercel
 

@@ -138,6 +138,9 @@ export default function RegistrationDesk() {
         <div className="panel-head">
           <h2 className="panel-title">
             📜 Guest list <span className="count">{guests.length}</span>
+            <span className="checked-count">
+              ✓ {guests.filter((g) => g.checkedInAt).length} checked in
+            </span>
           </h2>
           <div className="actions">
             <input className="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search name or ticket…" />
@@ -166,6 +169,7 @@ export default function RegistrationDesk() {
                 <tr>
                   <th>Ticket</th>
                   <th>Name</th>
+                  <th>Checked in</th>
                   <th />
                 </tr>
               </thead>
@@ -174,6 +178,13 @@ export default function RegistrationDesk() {
                   <tr key={g.id}>
                     <td className="mono">{g.ticketNo}</td>
                     <td>{g.name}</td>
+                    <td>
+                      {g.checkedInAt ? (
+                        <span className="in-pill">✓ {new Date(g.checkedInAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                      ) : (
+                        <span className="muted">Not yet</span>
+                      )}
+                    </td>
                     <td className="row-actions">
                       <button className="link" onClick={() => setLatest(g)}>
                         View
